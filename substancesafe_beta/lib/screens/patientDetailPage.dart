@@ -28,7 +28,7 @@ class PatientDetailPage extends StatelessWidget {
                   ),
                 );
               },
-              child: Text('Steps Data'),
+              child: Text('Get Steps Data'),
             ),
             ElevatedButton(
               onPressed: () {
@@ -42,7 +42,7 @@ class PatientDetailPage extends StatelessWidget {
                   ),
                 );
               },
-              child: Text('Heart Rate Data'),
+              child: Text('Get Heart Rate Data'),
             ),
             ElevatedButton(
               onPressed: () {
@@ -56,7 +56,7 @@ class PatientDetailPage extends StatelessWidget {
                   ),
                 );
               },
-              child: Text('Distance Data'),
+              child: Text('Get Distance Data'),
             ),
           ],
         ),

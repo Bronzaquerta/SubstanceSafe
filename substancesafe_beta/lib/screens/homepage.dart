@@ -129,7 +129,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 );
               },
-              child: Text('Go'),
+              child: Text('Go Patient Page'),
             ),
           ],
         ),
