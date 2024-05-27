@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:substance_safe_squad/screens/data_display_page.dart';
+import 'package:substancesafe_beta/screens/data_display_page.dart';
 
 class PatientDetailPage extends StatelessWidget {
   final String patientNumber;

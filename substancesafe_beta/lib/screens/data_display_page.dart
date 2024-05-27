@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:substance_safe_squad/models/data_model.dart';
-import 'package:substance_safe_squad/utils/impact.dart';
+import 'package:substancesafe_beta/models/data_model.dart';
+import 'package:substancesafe_beta/utils/impact.dart';
+
 
 class DataDisplayPage extends StatefulWidget {
   final String patientNumber;

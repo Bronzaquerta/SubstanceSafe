@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:substance_safe_squad/screens/homepage.dart';
-import 'package:substance_safe_squad/screens/loginpage.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:substancesafe_beta/screens/homepage.dart';
+import 'package:substancesafe_beta/screens/loginpage.dart';
 
 void main() {
   runApp(MyApp());
