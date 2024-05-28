@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:substancesafe_beta/screens/homepage.dart';
 import 'package:substancesafe_beta/screens/loginpage.dart';
