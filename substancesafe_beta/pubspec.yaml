@@ -35,12 +35,11 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.6
 
+ # libs
   shared_preferences: ^2.2.3
-
   provider: ^6.1.2
   material_design_icons_flutter: ^7.0.7296
   intl: ^0.19.0
-
   http: ^1.2.1
   jwt_decoder: ^2.0.1
   fl_chart: ^0.68.0
