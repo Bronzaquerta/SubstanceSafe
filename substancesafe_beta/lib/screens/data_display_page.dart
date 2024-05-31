@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:substance_safe_squad/models/data_model.dart';
-import 'package:substance_safe_squad/utils/impact.dart';
+import 'package:substancesafe_beta/models/data_model.dart';
+import 'package:substancesafe_beta/utils/impact.dart';
 
 class DataDisplayPage extends StatefulWidget {
   final String patientNumber;
@@ -26,11 +26,11 @@ class _DataDisplayPageState extends State<DataDisplayPage> {
       String patientNumber, String dataType) async {
     switch (dataType) {
       case 'steps':
-        return Impact.fetchStepsData(patientNumber);
+        return Impact.fetchStepsData('Jpefaq6m58');
       case 'heart_rate':
-        return Impact.fetchHeartRateData(patientNumber);
+        return Impact.fetchHeartRateData('Jpefaq6m58');
       case 'distance':
-        return Impact.fetchDistanceData(patientNumber);
+        return Impact.fetchDistanceData('Jpefaq6m58');
       default:
         throw Exception('Unknown data type');
     }
