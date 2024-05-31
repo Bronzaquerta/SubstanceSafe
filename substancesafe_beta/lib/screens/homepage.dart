@@ -116,7 +116,7 @@ class _HomePageState extends State<HomePage> {
                   ScaffoldMessenger.of(context)
                     ..removeCurrentSnackBar()
                     ..showSnackBar(
-                        SnackBar(content: Text('You didn\'t authorize')));
+                        SnackBar(content: Text("""You didn't authorize""")));
                   return;
                 }
 
