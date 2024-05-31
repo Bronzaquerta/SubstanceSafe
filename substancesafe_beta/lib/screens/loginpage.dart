@@ -1,94 +1,137 @@
 import 'package:flutter/material.dart';
+import 'package:substance_safe_squad/screens/homepage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:substancesafe_beta/screens/homepage.dart';
 
-class LoginPage extends StatefulWidget{
-  static const Username= 'Doctor';
-  static const Password= 'D0c7oR';
-  LoginPage({Key? key}) : super(key: key);
-  State<LoginPage> createState() => LoginPageState();
-  
+class LoginPage extends StatefulWidget {
+  @override
+  _LoginPageState createState() => _LoginPageState();
 }
-class LoginPageState extends State<LoginPage> {
-  static const routename = 'Login Page';
+
+class _LoginPageState extends State<LoginPage> {
+  TextEditingController userController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-  TextEditingController usernameController = TextEditingController();
+  bool rememberMe = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStoredCredentials();
+  }
+
+  Future<void> _loadStoredCredentials() async {
+    final sharedPreferences = await SharedPreferences.getInstance();
+    final storedUsername = sharedPreferences.getString('username');
+    final storedPassword = sharedPreferences.getString('password');
+    final storedRememberMe = sharedPreferences.getBool('rememberMe') ?? false;
+
+    if (storedRememberMe) {
+      setState(() {
+        userController.text = storedUsername ?? '';
+        passwordController.text = storedPassword ?? '';
+        rememberMe = storedRememberMe;
+      });
+    }
+  }
+
+  Future<void> _storeCredentials(String username, String password) async {
+    final sharedPreferences = await SharedPreferences.getInstance();
+    await sharedPreferences.setString('username', username);
+    await sharedPreferences.setString('password', password);
+    await sharedPreferences.setBool('rememberMe', rememberMe);
+  }
+
+  Future<void> _login() async {
+    if (userController.text == 'bug@expert.com' &&
+        passwordController.text == '5TrNgP5Wd') {
+      final sharedPreferences = await SharedPreferences.getInstance();
+      await sharedPreferences.setBool('isUserLogged', true);
+
+      if (rememberMe) {
+        await _storeCredentials(userController.text, passwordController.text);
+      } else {
+        await sharedPreferences.remove('username');
+        await sharedPreferences.remove('password');
+        await sharedPreferences.remove('rememberMe');
+      }
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => HomePage()),
+      );
+    } else {
+      ScaffoldMessenger.of(context)
+        ..removeCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text('Wrong email/password')));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        centerTitle: true,
-        title: Text(LoginPageState.routename),
+        title: Text("Login Page"),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 15),
+              child: TextField(
+                controller: userController,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Email',
+                  hintText: 'Enter valid email id as abc@gmail.com',
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(
+                  left: 15.0, right: 15.0, top: 15, bottom: 15),
+              child: TextField(
+                obscureText: true,
+                controller: passwordController,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Password',
+                  hintText: 'Enter password',
+                ),
+              ),
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SizedBox(
-                  width: 375,
-                  child: TextField(
-                    controller: usernameController,
-                    decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Username',
-                        hintText: 'Enter username'),
-                  ),
+                Checkbox(
+                  value: rememberMe,
+                  onChanged: (value) {
+                    setState(() {
+                      rememberMe = value!;
+                    });
+                  },
                 ),
+                Text('Remember Me'),
               ],
             ),
-            SizedBox(
-              height: 10,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(
-                  width: 375,
-                  child: TextField(
-                    obscureText: true,
-                    controller: passwordController,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Password',
-                      hintText: 'Enter password',
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 5,
-            ),
-            SizedBox(
-              width: 200,
-              height: 35,
+            Container(
+              height: 50,
+              width: 250,
+              decoration:
+                  BoxDecoration(borderRadius: BorderRadius.circular(20)),
               child: ElevatedButton(
-                  child: Text('Login'),
-                  onPressed: () async{
-                    
-
-                    if (usernameController.text == LoginPage.Username &&
-                        passwordController.text == LoginPage.Password) {
-                          final sp= await SharedPreferences.getInstance();
-                    await sp.setBool('auth', true);
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => HomePage()));
-                    } else {
-                      
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Wrong credentials'),
-                        duration: const Duration(seconds: 2),),
-                      );
-                    }
-                  }),
+                onPressed: _login,
+                child: Text(
+                  'Login',
+                ),
+              ),
+            ),
+            SizedBox(
+              height: 130,
             ),
           ],
         ),
       ),
     );
   }
-}//LoginPageState
+}

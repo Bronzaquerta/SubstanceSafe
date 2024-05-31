@@ -1,93 +1,140 @@
 import 'package:flutter/material.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:substance_safe_squad/screens/loginpage.dart';
+import 'package:substance_safe_squad/screens/patientDetailPage.dart';
+import 'package:substance_safe_squad/utils/impact.dart';
 
-class HomePage extends StatelessWidget {
-  const HomePage({Key? key}) : super(key: key);
 
-  static const routename = 'Homepage';
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  TextEditingController patientNumberController = TextEditingController();
+
+  final List<Map<String, String>> patients = [
+    {'name': 'Oguzhan Telli', 'number': '1'},
+    {'name': 'Thomas Jahreis', 'number': '2'},
+    {'name': 'Linda', 'number': '3'},
+    {'name': 'Giacomo Cappon', 'number': '4'},
+    // Add more patients here
+  ];
+
+  void _logout(BuildContext context) async {
+    final sharedPreferences = await SharedPreferences.getInstance();
+    await sharedPreferences.remove('isUserLogged');
+    Navigator.pop(context);
+    Navigator.of(context)
+        .pushReplacement(MaterialPageRoute(builder: (context) => LoginPage()));
+  }
+
+
+  Future<int?> _authorize() async {
+    return Impact.authorize();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(HomePage.routename),
+        title: Text('HomePage'),
       ),
-      backgroundColor: Colors.lightBlue[50], // Vaaleampi sininen taustaväri
-      body: Stack(
-        children: [
-          Align(
-            alignment: Alignment.topLeft,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ElevatedButton(
-                onPressed: () async {
-                  final sp = await SharedPreferences.getInstance();
-                  await sp.setBool('auth', false);
-                  Navigator.pop(context);
-                }, 
-                child: Text('Back to Home')
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              child: Text('Menu'),
+            ),
+            ListTile(
+              leading: Icon(Icons.logout),
+              title: Text('Logout'),
+              onTap: () => _logout(context),
+            ),
+          ],
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ElevatedButton(
+              onPressed: () async {
+                final result = await _authorize();
+                final message =
+                    result == 200 ? 'Request successful' : 'Request failed';
+                ScaffoldMessenger.of(context)
+                  ..removeCurrentSnackBar()
+                  ..showSnackBar(SnackBar(content: Text(message)));
+              },
+              child: Text('Authorize the app'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final sp = await SharedPreferences.getInstance();
+                await sp.remove('access');
+                await sp.remove('refresh');
+                ScaffoldMessenger.of(context)
+                  ..removeCurrentSnackBar()
+                  ..showSnackBar(
+                      SnackBar(content: Text('Tokens have been deleted')));
+              },
+              child: Text('Unauthorize the app'),
+            ),
+            SizedBox(height: 20),
+            Text(
+              'Patient List:',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: patients.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(patients[index]['name']!),
+                    subtitle: Text('Number: ${patients[index]['number']}'),
+                  );
+                },
               ),
             ),
-          ),
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.all(20),
-                  margin: EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.lightBlue[100], // Yhteenveto-boxin väri
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Summary of xx days', 
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 10), 
-                      Text(
-                        'Sleep:', 
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        'Heart rate:', // Syke-luokka
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: () {
-                    // 
-                  }, 
-                  child: Text('Current patient information')
-                ),
-                SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: () {
-                    // 
-                  },
-                  child: Text('Patient history')
-                ),
-              ],
+            TextField(
+              controller: patientNumberController,
+              decoration: InputDecoration(
+                labelText: 'Enter patient number',
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.number,
             ),
-          ),
-        ],
+            SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () async {
+                final sp = await SharedPreferences.getInstance();
+                final access = sp.getString('access');
+                if (access == null || JwtDecoder.isExpired(access)) {
+                  ScaffoldMessenger.of(context)
+                    ..removeCurrentSnackBar()
+                    ..showSnackBar(
+                        SnackBar(content: Text('You didn\'t authorize')));
+                  return;
+                }
+
+                String patientNumber = patientNumberController.text;
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        PatientDetailPage(patientNumber: patientNumber),
+                  ),
+                );
+              },
+              child: Text('Go'),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
-
-
