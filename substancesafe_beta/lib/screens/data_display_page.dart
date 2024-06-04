@@ -6,6 +6,7 @@ import 'package:substancesafe_beta/utils/impact.dart';
 class DataDisplayPage extends StatefulWidget {
   final String patientNumber;
   final String dataType;
+  
 
   DataDisplayPage({required this.patientNumber, required this.dataType});
 
@@ -15,11 +16,12 @@ class DataDisplayPage extends StatefulWidget {
 
 class _DataDisplayPageState extends State<DataDisplayPage> {
   late Future<List<DataModel>> _data;
-
+  bool isHR=false;
   @override
   void initState() {
     super.initState();
     _data = fetchData(widget.patientNumber, widget.dataType);
+    if(widget.dataType == 'heart_rate'){isHR=true;}
   }
 
   Future<List<DataModel>> fetchData(
@@ -35,6 +37,7 @@ class _DataDisplayPageState extends State<DataDisplayPage> {
         throw Exception('Unknown data type');
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -55,6 +58,11 @@ class _DataDisplayPageState extends State<DataDisplayPage> {
             return Center(child: Text('No data available'));
           } else {
             final data = snapshot.data!;
+            Map<int, double> aggregatedData = aggregateDataByHour(data, isHR);
+
+    List<FlSpot> spots = aggregatedData.entries.map((entry) {
+      return FlSpot(entry.key.toDouble(), entry.value);
+    }).toList();
             return Column(
               children: [
                 Expanded(
@@ -66,14 +74,8 @@ class _DataDisplayPageState extends State<DataDisplayPage> {
                       borderData: FlBorderData(show: true),
                       lineBarsData: [
                         LineChartBarData(
-                          spots: data
-                              .map((dataPoint) => FlSpot(
-                                    dataPoint.time.millisecondsSinceEpoch
-                                        .toDouble(),
-                                    dataPoint.value.toDouble(),
-                                  ))
-                              .toList(),
-                          isCurved: true,
+                          spots: spots,
+                          isCurved: false,
                           color: Colors.blue,
                           barWidth: 4,
                           belowBarData: BarAreaData(
@@ -105,3 +107,46 @@ class _DataDisplayPageState extends State<DataDisplayPage> {
     );
   }
 }
+
+
+ Map<int, double> aggregateDataByHour(List<DataModel> data, HR) {
+    
+    if(HR){
+      Map<int, List<double>> hourlyData = {};
+
+    // Group data by hour
+    for (var point in data) {
+      int hour = point.time.hour;
+      if (hourlyData.containsKey(hour)) {
+        hourlyData[hour]!.add(point.value.toDouble());
+      } else {
+        hourlyData[hour] = [point.value.toDouble()];
+      }
+    }
+
+    // Calculate the mean for each hour
+    Map<int, double> hourlyMeanData = {};
+    hourlyData.forEach((hour, values) {
+      if (values.isNotEmpty) {
+        double mean = values.reduce((a, b) => a + b) / values.length;
+        hourlyMeanData[hour] = mean;
+      }
+    });
+
+    return hourlyMeanData;
+  }
+    
+    else{
+      Map<int, double> hourlyData = {};
+    for (var point in data) {
+      int hour = point.time.hour;
+      if (hourlyData.containsKey(hour)) {
+        hourlyData[hour] = hourlyData[hour]! + point.value;
+      } else {
+        hourlyData[hour] = point.value.toDouble();
+      }
+    }
+    return hourlyData;
+    }
+  }
+  
