@@ -6,6 +6,7 @@ import 'package:substancesafe_beta/screens/patientDetailPage.dart';
 import 'package:substancesafe_beta/utils/impact.dart';
 
 
+
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
@@ -29,6 +30,7 @@ class _HomePageState extends State<HomePage> {
     Navigator.of(context)
         .pushReplacement(MaterialPageRoute(builder: (context) => LoginPage()));
   }
+
 
   Future<int?> _authorize() async {
     return Impact.authorize();
