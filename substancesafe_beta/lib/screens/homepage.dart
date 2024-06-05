@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:substance_safe_squad/screens/loginpage.dart';
-import 'package:substance_safe_squad/screens/patientDetailPage.dart';
-import 'package:substance_safe_squad/utils/impact.dart';
+import 'package:substancesafe_beta/screens/loginpage.dart';
+import 'package:substancesafe_beta/screens/patientDetailPage.dart';
+import 'package:substancesafe_beta/utils/impact.dart';
 
 class HomePage extends StatefulWidget {
   @override
