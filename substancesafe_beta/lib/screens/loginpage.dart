@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:substancesafe_beta/screens/homepage.dart';
+import 'package:substancesafe_beta/screens/patientPage.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -65,6 +66,13 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  void _goToPatientPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => PatientPage()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -76,8 +84,20 @@ class _LoginPageState extends State<LoginPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            Container(
+              height: 50,
+              width: 250,
+              decoration:
+                  BoxDecoration(borderRadius: BorderRadius.circular(20)),
+              child: ElevatedButton(
+                onPressed: _goToPatientPage,
+                child: Text(
+                  'To Patient Page',
+                ),
+              ),
+            ),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 15),
+              padding: EdgeInsets.symmetric(horizontal: 15,vertical: 15),
               child: TextField(
                 controller: userController,
                 decoration: InputDecoration(
