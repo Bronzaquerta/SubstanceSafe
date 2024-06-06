@@ -5,11 +5,7 @@ import 'package:substancesafe_beta/screens/loginpage.dart';
 import 'package:substancesafe_beta/screens/patientDetailPage.dart';
 import 'package:substancesafe_beta/utils/impact.dart';
 
-
-
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
-
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -20,7 +16,7 @@ class _HomePageState extends State<HomePage> {
   final List<Map<String, String>> patients = [
     {'name': 'Oguzhan Telli', 'number': '1'},
     {'name': 'Thomas Jahreis', 'number': '2'},
-    {'name': 'Linda', 'number': '3'},
+    {'name': 'Linda Jalonen', 'number': '3'},
     {'name': 'Giacomo Cappon', 'number': '4'},
     // Add more patients here
   ];
@@ -33,7 +29,6 @@ class _HomePageState extends State<HomePage> {
         .pushReplacement(MaterialPageRoute(builder: (context) => LoginPage()));
   }
 
-
   Future<int?> _authorize() async {
     return Impact.authorize();
   }
@@ -42,18 +37,18 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('HomePage'),
+        title: Text('HomePage'),
       ),
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            const DrawerHeader(
+            DrawerHeader(
               child: Text('Menu'),
             ),
             ListTile(
-              leading: const Icon(Icons.logout),
-              title: const Text('Logout'),
+              leading: Icon(Icons.logout),
+              title: Text('Logout'),
               onTap: () => _logout(context),
             ),
           ],
@@ -73,7 +68,7 @@ class _HomePageState extends State<HomePage> {
                   ..removeCurrentSnackBar()
                   ..showSnackBar(SnackBar(content: Text(message)));
               },
-              child: const Text('Authorize the app'),
+              child: Text('Authorize the app'),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -83,12 +78,12 @@ class _HomePageState extends State<HomePage> {
                 ScaffoldMessenger.of(context)
                   ..removeCurrentSnackBar()
                   ..showSnackBar(
-                      const SnackBar(content: Text('Tokens have been deleted')));
+                      SnackBar(content: Text('Tokens have been deleted')));
               },
-              child: const Text('Unauthorize the app'),
+              child: Text('Unauthorize the app'),
             ),
-            const SizedBox(height: 20),
-            const Text(
+            SizedBox(height: 20),
+            Text(
               'Patient List:',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
@@ -105,13 +100,13 @@ class _HomePageState extends State<HomePage> {
             ),
             TextField(
               controller: patientNumberController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Enter patient number',
                 border: OutlineInputBorder(),
               ),
               keyboardType: TextInputType.number,
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
             ElevatedButton(
               onPressed: () async {
                 final sp = await SharedPreferences.getInstance();
@@ -120,7 +115,7 @@ class _HomePageState extends State<HomePage> {
                   ScaffoldMessenger.of(context)
                     ..removeCurrentSnackBar()
                     ..showSnackBar(
-                        const SnackBar(content: Text('You didn\'t authorize')));
+                        SnackBar(content: Text('You didn\'t authorize')));
                   return;
                 }
 
@@ -133,7 +128,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 );
               },
-              child: const Text('Go'),
+              child: Text('Go'),
             ),
           ],
         ),
