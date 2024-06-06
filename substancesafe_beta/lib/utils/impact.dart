@@ -59,8 +59,8 @@ class Impact {
       access = sp.getString('access');
     }
 
-    final day = '2024-05-04';
-    final url = baseUrl + endpoint + patientNumber + '/day/$day/';
+    const day = '2024-05-04';
+    final url = '$baseUrl$endpoint$patientNumber/day/$day/';
     final headers = {HttpHeaders.authorizationHeader: 'Bearer $access'};
 
     final response = await http.get(Uri.parse(url), headers: headers);

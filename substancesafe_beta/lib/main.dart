@@ -4,11 +4,11 @@ import 'package:substancesafe_beta/screens/loginpage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 } //main
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
         future: SharedPreferences.getInstance(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Scaffold(
+            return const Scaffold(
               body: Center(child: CircularProgressIndicator()),
             );
           } else if (snapshot.hasData) {
@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
               return LoginPage();
             }
           } else {
-            return Scaffold(
+            return const Scaffold(
               body: Center(child: Text('Error loading preferences')),
             );
           }
@@ -40,3 +40,4 @@ class MyApp extends StatelessWidget {
     );
   } //build
 } //MyApp
+

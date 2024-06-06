@@ -8,7 +8,7 @@ class DataDisplayPage extends StatefulWidget {
   final String dataType;
   
 
-  DataDisplayPage({required this.patientNumber, required this.dataType});
+  const DataDisplayPage({super.key, required this.patientNumber, required this.dataType});
 
   @override
   _DataDisplayPageState createState() => _DataDisplayPageState();
@@ -51,11 +51,11 @@ class _DataDisplayPageState extends State<DataDisplayPage> {
         builder: (context, snapshot) {
           print('Snapshot data: ${snapshot.data}');
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No data available'));
+            return const Center(child: Text('No data available'));
           } else {
             final data = snapshot.data!;
             Map<int, double> aggregatedData = aggregateDataByHour(data, isHR);

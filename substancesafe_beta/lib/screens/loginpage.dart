@@ -3,6 +3,8 @@ import 'package:substancesafe_beta/screens/homepage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
   @override
   _LoginPageState createState() => _LoginPageState();
 }
@@ -61,7 +63,7 @@ class _LoginPageState extends State<LoginPage> {
     } else {
       ScaffoldMessenger.of(context)
         ..removeCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text('Wrong email/password')));
+        ..showSnackBar(const SnackBar(content: Text('Wrong email/password')));
     }
   }
 
@@ -70,17 +72,17 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text("Login Page"),
+        title: const Text("Login Page"),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 15),
+              padding: const EdgeInsets.symmetric(horizontal: 15),
               child: TextField(
                 controller: userController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Email',
                   hintText: 'Enter valid email id as abc@gmail.com',
@@ -93,7 +95,7 @@ class _LoginPageState extends State<LoginPage> {
               child: TextField(
                 obscureText: true,
                 controller: passwordController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Password',
                   hintText: 'Enter password',
@@ -111,7 +113,7 @@ class _LoginPageState extends State<LoginPage> {
                     });
                   },
                 ),
-                Text('Remember Me'),
+                const Text('Remember Me'),
               ],
             ),
             Container(
@@ -121,12 +123,12 @@ class _LoginPageState extends State<LoginPage> {
                   BoxDecoration(borderRadius: BorderRadius.circular(20)),
               child: ElevatedButton(
                 onPressed: _login,
-                child: Text(
+                child: const Text(
                   'Login',
                 ),
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 130,
             ),
           ],
