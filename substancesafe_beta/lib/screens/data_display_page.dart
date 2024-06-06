@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:substance_safe_squad/models/data_model.dart';
-import 'package:substance_safe_squad/utils/impact.dart';
+import 'package:substancesafe_beta/models/data_model.dart';
+import 'package:substancesafe_beta/utils/impact.dart';
 
 class DataDisplayPage extends StatefulWidget {
   final String patientNumber;
   final String dataType;
 
-  DataDisplayPage({required this.patientNumber, required this.dataType});
+  const DataDisplayPage({super.key, required this.patientNumber, required this.dataType});
 
   @override
   _DataDisplayPageState createState() => _DataDisplayPageState();
@@ -48,11 +48,11 @@ class _DataDisplayPageState extends State<DataDisplayPage> {
         builder: (context, snapshot) {
           print('Snapshot data: ${snapshot.data}');
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No data available'));
+            return const Center(child: Text('No data available'));
           } else {
             final data = snapshot.data!;
             return Column(

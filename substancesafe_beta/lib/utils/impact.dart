@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:substance_safe_squad/models/data_model.dart';
+import 'package:substancesafe_beta/models/data_model.dart';
 
 class Impact {
   static String baseUrl = 'https://impact.dei.unipd.it/bwthw/';
@@ -59,8 +59,8 @@ class Impact {
       access = sp.getString('access');
     }
 
-    final day = '2024-05-04';
-    final url = baseUrl + endpoint + patientNumber + '/day/$day/';
+    const day = '2024-05-04';
+    final url = '$baseUrl$endpoint$patientNumber/day/$day/';
     final headers = {HttpHeaders.authorizationHeader: 'Bearer $access'};
 
     final response = await http.get(Uri.parse(url), headers: headers);

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:substance_safe_squad/screens/data_display_page.dart';
+import 'package:substancesafe_beta/screens/data_display_page.dart';
 
 class PatientDetailPage extends StatelessWidget {
   final String patientNumber;
 
-  PatientDetailPage({required this.patientNumber});
+  const PatientDetailPage({super.key, required this.patientNumber});
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +28,7 @@ class PatientDetailPage extends StatelessWidget {
                   ),
                 );
               },
-              child: Text('Steps Data'),
+              child: const Text('Steps Data'),
             ),
             ElevatedButton(
               onPressed: () {
@@ -42,7 +42,7 @@ class PatientDetailPage extends StatelessWidget {
                   ),
                 );
               },
-              child: Text('Heart Rate Data'),
+              child: const Text('Heart Rate Data'),
             ),
             ElevatedButton(
               onPressed: () {
@@ -56,7 +56,7 @@ class PatientDetailPage extends StatelessWidget {
                   ),
                 );
               },
-              child: Text('Distance Data'),
+              child: const Text('Distance Data'),
             ),
           ],
         ),

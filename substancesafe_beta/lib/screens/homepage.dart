@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:substance_safe_squad/screens/loginpage.dart';
-import 'package:substance_safe_squad/screens/patientDetailPage.dart';
-import 'package:substance_safe_squad/utils/impact.dart';
+import 'package:substancesafe_beta/screens/loginpage.dart';
+import 'package:substancesafe_beta/screens/patientDetailPage.dart';
+import 'package:substancesafe_beta/utils/impact.dart';
+
 
 class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -29,6 +32,7 @@ class _HomePageState extends State<HomePage> {
         .pushReplacement(MaterialPageRoute(builder: (context) => LoginPage()));
   }
 
+
   Future<int?> _authorize() async {
     return Impact.authorize();
   }
@@ -37,18 +41,18 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('HomePage'),
+        title: const Text('HomePage'),
       ),
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            DrawerHeader(
+            const DrawerHeader(
               child: Text('Menu'),
             ),
             ListTile(
-              leading: Icon(Icons.logout),
-              title: Text('Logout'),
+              leading: const Icon(Icons.logout),
+              title: const Text('Logout'),
               onTap: () => _logout(context),
             ),
           ],
@@ -68,7 +72,7 @@ class _HomePageState extends State<HomePage> {
                   ..removeCurrentSnackBar()
                   ..showSnackBar(SnackBar(content: Text(message)));
               },
-              child: Text('Authorize the app'),
+              child: const Text('Authorize the app'),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -78,12 +82,12 @@ class _HomePageState extends State<HomePage> {
                 ScaffoldMessenger.of(context)
                   ..removeCurrentSnackBar()
                   ..showSnackBar(
-                      SnackBar(content: Text('Tokens have been deleted')));
+                      const SnackBar(content: Text('Tokens have been deleted')));
               },
-              child: Text('Unauthorize the app'),
+              child: const Text('Unauthorize the app'),
             ),
-            SizedBox(height: 20),
-            Text(
+            const SizedBox(height: 20),
+            const Text(
               'Patient List:',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
@@ -100,13 +104,13 @@ class _HomePageState extends State<HomePage> {
             ),
             TextField(
               controller: patientNumberController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Enter patient number',
                 border: OutlineInputBorder(),
               ),
               keyboardType: TextInputType.number,
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             ElevatedButton(
               onPressed: () async {
                 final sp = await SharedPreferences.getInstance();
@@ -115,7 +119,7 @@ class _HomePageState extends State<HomePage> {
                   ScaffoldMessenger.of(context)
                     ..removeCurrentSnackBar()
                     ..showSnackBar(
-                        SnackBar(content: Text('You didn\'t authorize')));
+                        const SnackBar(content: Text('You didn\'t authorize')));
                   return;
                 }
 
@@ -128,7 +132,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 );
               },
-              child: Text('Go'),
+              child: const Text('Go'),
             ),
           ],
         ),
