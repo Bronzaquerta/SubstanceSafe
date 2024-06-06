@@ -7,10 +7,17 @@ class DataModel {
   DataModel({required this.time, required this.value});
 
   factory DataModel.fromJson(String date, Map<String, dynamic> json) {
-    return DataModel(
-      time: DateFormat('yyyy-MM-dd HH:mm:ss').parse('$date ${json["time"]}'),
-      value: int.parse(json['value']),
-    );
+    if (json['value'] is int) {
+      return DataModel(
+        time: DateFormat('yyyy-MM-dd HH:mm:ss').parse('$date ${json["time"]}'),
+        value: json['value'],
+      );
+    } else {
+      return DataModel(
+        time: DateFormat('yyyy-MM-dd HH:mm:ss').parse('$date ${json["time"]}'),
+        value: int.parse(json['value']),
+      );
+    }
   }
 
   @override
