@@ -1,9 +1,9 @@
 class Doctor {
-  String id;
+  String email;
   String name;
   String password;
   
-  Doctor({required this.id, required this.name, required this.password});
+  Doctor({required this.email, required this.name, required this.password});
   
   // checking the password 
   bool checkPassword(String inputPassword) {

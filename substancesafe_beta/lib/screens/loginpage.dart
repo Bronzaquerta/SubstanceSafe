@@ -135,7 +135,10 @@ class _LoginPageState extends State<LoginPage> {
               decoration:
                   BoxDecoration(borderRadius: BorderRadius.circular(20)),
               child: ElevatedButton(
-                onPressed: (){MaterialPageRoute(builder: (_) => NewAccountPage());} ,
+                onPressed: (){Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => NewAccountPage()),
+      );} ,
                 child: const Text(
                   'New? Create an account',
                 ),
