@@ -1,20 +1,28 @@
 class Patient {
-  final String id;
+  final String email;
   final String name;
-  final int heartRate;
-  final int steps;
-  final double distance;
+  final String password;
+  late int heartRate;
+  late int steps;
+  late double distance;
 
   Patient({
-    required this.id,
+    required this.email,
     required this.name,
-    required this.heartRate,
-    required this.steps,
-    required this.distance,
+    required this.password
   });
 
+  addHeartrate(heartRate){
+    this.heartRate=heartRate;
+  }
+  addSteps(steps){
+    this.steps=steps;
+  }
+  addDistance(distance){
+    this.distance=distance;
+  }
   @override
   String toString() {
-    return 'Patient(id: $id, name: $name, heartRate: $heartRate, steps: $steps, distance: $distance)';
+    return 'Patient(id: $email, name: $name, heartRate: $heartRate, steps: $steps, distance: $distance)';
   }
 }

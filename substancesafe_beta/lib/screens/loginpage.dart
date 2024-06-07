@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:substancesafe_beta/screens/homepage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:substancesafe_beta/screens/new_account_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -125,6 +126,18 @@ class _LoginPageState extends State<LoginPage> {
                 onPressed: _login,
                 child: const Text(
                   'Login',
+                ),
+              ),
+            ),
+            Container(
+              height: 50,
+              width: 250,
+              decoration:
+                  BoxDecoration(borderRadius: BorderRadius.circular(20)),
+              child: ElevatedButton(
+                onPressed: (){MaterialPageRoute(builder: (_) => NewAccountPage());} ,
+                child: const Text(
+                  'New? Create an account',
                 ),
               ),
             ),
