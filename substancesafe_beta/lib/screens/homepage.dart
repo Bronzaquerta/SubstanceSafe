@@ -1,11 +1,11 @@
+// homepage.dart
 import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:substancesafe_beta/screens/loginpage.dart';
 import 'package:substancesafe_beta/screens/patientDetailPage.dart';
 import 'package:substancesafe_beta/utils/impact.dart';
-
-
+import 'package:substancesafe_beta/utils/patient_list.dart'; // Import the patient list
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -17,14 +17,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   TextEditingController patientNumberController = TextEditingController();
 
-  final List<Map<String, String>> patients = [
-    {'name': 'Oguzhan Telli', 'number': '1'},
-    {'name': 'Thomas Jahreis', 'number': '2'},
-    {'name': 'Linda', 'number': '3'},
-    {'name': 'Giacomo Cappon', 'number': '4'},
-    // Add more patients here
-  ];
-
   void _logout(BuildContext context) async {
     final sharedPreferences = await SharedPreferences.getInstance();
     await sharedPreferences.remove('isUserLogged');
@@ -33,9 +25,27 @@ class _HomePageState extends State<HomePage> {
         .pushReplacement(MaterialPageRoute(builder: (context) => LoginPage()));
   }
 
-
   Future<int?> _authorize() async {
     return Impact.authorize();
+  }
+
+  // Define a function to apply Caesar cipher encryption
+  String caesarEncrypt(String text, int shift) {
+    StringBuffer result = StringBuffer();
+    for (int i = 0; i < text.length; i++) {
+      int charCode = text.codeUnitAt(i);
+      if (charCode >= 65 && charCode <= 90) {
+        // Encrypt uppercase letters
+        result.write(String.fromCharCode((charCode - 65 + shift) % 26 + 65));
+      } else if (charCode >= 97 && charCode <= 122) {
+        // Encrypt lowercase letters
+        result.write(String.fromCharCode((charCode - 97 + shift) % 26 + 97));
+      } else {
+        // Keep non-alphabetic characters unchanged
+        result.write(text[i]);
+      }
+    }
+    return result.toString();
   }
 
   @override
@@ -92,17 +102,19 @@ class _HomePageState extends State<HomePage> {
               'Patient List:',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: patients.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(patients[index]['name']!),
-                    subtitle: Text('Number: ${patients[index]['number']}'),
-                  );
-                },
-              ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: patients.length,
+              itemBuilder: (context, index) {
+                // Encrypt the patient name using Caesar cipher with a shift of 3
+                String encryptedName = caesarEncrypt(patients[index]['name']!, 3);
+                return ListTile(
+                  title: Text(encryptedName), // Display the encrypted name
+                  subtitle: Text('Number: ${patients[index]['number']}'),
+                );
+              },
             ),
+          ),
             TextField(
               controller: patientNumberController,
               decoration: const InputDecoration(
@@ -133,7 +145,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 );
               },
-              child: const Text('Go'),
+              child: Text('Go Patient Page'),
             ),
           ],
         ),

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:substancesafe_beta/screens/homepage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:substancesafe_beta/screens/homepage.dart';
+import 'package:substancesafe_beta/screens/patientPage.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
-
   @override
   _LoginPageState createState() => _LoginPageState();
 }
@@ -63,8 +62,15 @@ class _LoginPageState extends State<LoginPage> {
     } else {
       ScaffoldMessenger.of(context)
         ..removeCurrentSnackBar()
-        ..showSnackBar(const SnackBar(content: Text('Wrong email/password')));
+        ..showSnackBar(SnackBar(content: Text('Wrong email/password')));
     }
+  }
+
+  void _goToPatientPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => PatientPage()),
+    );
   }
 
   @override
@@ -72,17 +78,29 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text("Login Page"),
+        title: Text("Login Page"),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            Container(
+              height: 50,
+              width: 250,
+              decoration:
+                  BoxDecoration(borderRadius: BorderRadius.circular(20)),
+              child: ElevatedButton(
+                onPressed: _goToPatientPage,
+                child: Text(
+                  'To Patient Page',
+                ),
+              ),
+            ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15),
+              padding: EdgeInsets.symmetric(horizontal: 15,vertical: 15),
               child: TextField(
                 controller: userController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Email',
                   hintText: 'Enter valid email id as abc@gmail.com',
@@ -95,7 +113,7 @@ class _LoginPageState extends State<LoginPage> {
               child: TextField(
                 obscureText: true,
                 controller: passwordController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Password',
                   hintText: 'Enter password',
@@ -113,7 +131,7 @@ class _LoginPageState extends State<LoginPage> {
                     });
                   },
                 ),
-                const Text('Remember Me'),
+                Text('Remember Me'),
               ],
             ),
             Container(
@@ -123,12 +141,12 @@ class _LoginPageState extends State<LoginPage> {
                   BoxDecoration(borderRadius: BorderRadius.circular(20)),
               child: ElevatedButton(
                 onPressed: _login,
-                child: const Text(
+                child: Text(
                   'Login',
                 ),
               ),
             ),
-            const SizedBox(
+            SizedBox(
               height: 130,
             ),
           ],
