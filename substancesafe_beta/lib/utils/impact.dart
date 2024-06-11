@@ -34,21 +34,21 @@ class Impact {
     return response.statusCode;
   }
 
-  static Future<List<DataModel>> fetchStepsData(String patientNumber) async {
-    return fetchData(patientNumber, stepsEndpoint);
+  static Future<List<DataModel>> fetchStepsData(String patientNumber, {DateTime? date}) async {
+    return fetchData(patientNumber, stepsEndpoint, date);
   }
 
   static Future<List<DataModel>> fetchHeartRateData(
-      String patientNumber) async {
-    return fetchData(patientNumber, heartRateEndpoint);
+      String patientNumber, {DateTime? date}) async {
+    return fetchData(patientNumber, heartRateEndpoint, date);
   }
 
-  static Future<List<DataModel>> fetchDistanceData(String patientNumber) async {
-    return fetchData(patientNumber, distanceEndpoint);
+  static Future<List<DataModel>> fetchDistanceData(String patientNumber, {DateTime? date}) async {
+    return fetchData(patientNumber, distanceEndpoint, date);
   }
 
   static Future<List<DataModel>> fetchData(
-      String patientNumber, String endpoint) async {
+      String patientNumber, String endpoint, DateTime? date) async {
     List<DataModel> result = [];
 
     final sp = await SharedPreferences.getInstance();
@@ -59,8 +59,8 @@ class Impact {
       access = sp.getString('access');
     }
 
-    const day = '2024-05-04';
-    final url = '$baseUrl$endpoint$patientNumber/day/$day/';
+    final formattedDate = date != null ? date.toString().split(' ')[0] : '2024-05-04';
+    final url = '$baseUrl$endpoint$patientNumber/day/$formattedDate/';
     final headers = {HttpHeaders.authorizationHeader: 'Bearer $access'};
 
     final response = await http.get(Uri.parse(url), headers: headers);

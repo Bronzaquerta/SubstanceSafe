@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:substancesafe_beta/models/data_model.dart';
 import 'package:substancesafe_beta/utils/impact.dart';
+import 'package:intl/intl.dart';
 
 class DataDisplayPage extends StatefulWidget {
   final String patientNumber;
   final String dataType;
-  
 
-  const DataDisplayPage({super.key, required this.patientNumber, required this.dataType});
+  const DataDisplayPage({Key? key, required this.patientNumber, required this.dataType}) : super(key: key);
 
   @override
   _DataDisplayPageState createState() => _DataDisplayPageState();
@@ -16,40 +16,58 @@ class DataDisplayPage extends StatefulWidget {
 
 class _DataDisplayPageState extends State<DataDisplayPage> {
   late Future<List<DataModel>> _data;
-  bool isHR=false;
+  late DateTime _selectedDate;
+
   @override
   void initState() {
     super.initState();
-    _data = fetchData(widget.patientNumber, widget.dataType);
-    if(widget.dataType == 'heart_rate'){isHR=true;}
+    _selectedDate = DateTime.now();
+    _data = fetchData(_selectedDate);
   }
 
-  Future<List<DataModel>> fetchData(
-      String patientNumber, String dataType) async {
-    switch (dataType) {
+  Future<List<DataModel>> fetchData(DateTime date) async {
+    switch (widget.dataType) {
       case 'steps':
-        return Impact.fetchStepsData('Jpefaq6m58');
+        return Impact.fetchStepsData(widget.patientNumber, date: date);
       case 'heart_rate':
-        return Impact.fetchHeartRateData('Jpefaq6m58');
+        return Impact.fetchHeartRateData(widget.patientNumber, date: date);
       case 'distance':
-        return Impact.fetchDistanceData('Jpefaq6m58');
+        return Impact.fetchDistanceData(widget.patientNumber, date: date);
       default:
         throw Exception('Unknown data type');
     }
   }
 
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2020, 1),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+        _data = fetchData(_selectedDate);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title:
-            Text('${widget.dataType} data for Patient ${widget.patientNumber}'),
+        title: Text('${widget.dataType} data for Patient ${widget.patientNumber}'),
+        actions: [
+          IconButton(
+            onPressed: () => _selectDate(context),
+            icon: Icon(Icons.calendar_today),
+          ),
+        ],
       ),
       body: FutureBuilder<List<DataModel>>(
         future: _data,
         builder: (context, snapshot) {
-          print('Snapshot data: ${snapshot.data}');
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
@@ -58,11 +76,6 @@ class _DataDisplayPageState extends State<DataDisplayPage> {
             return const Center(child: Text('No data available'));
           } else {
             final data = snapshot.data!;
-            Map<int, double> aggregatedData = aggregateDataByHour(data, isHR);
-
-    List<FlSpot> spots = aggregatedData.entries.map((entry) {
-      return FlSpot(entry.key.toDouble(), entry.value);
-    }).toList();
             return Column(
               children: [
                 Expanded(
@@ -74,8 +87,13 @@ class _DataDisplayPageState extends State<DataDisplayPage> {
                       borderData: FlBorderData(show: true),
                       lineBarsData: [
                         LineChartBarData(
-                          spots: spots,
-                          isCurved: false,
+                          spots: data
+                              .map((dataPoint) => FlSpot(
+                                    dataPoint.time.millisecondsSinceEpoch.toDouble(),
+                                    dataPoint.value.toDouble(),
+                                  ))
+                              .toList(),
+                          isCurved: true,
                           color: Colors.blue,
                           barWidth: 4,
                           belowBarData: BarAreaData(
@@ -107,46 +125,3 @@ class _DataDisplayPageState extends State<DataDisplayPage> {
     );
   }
 }
-
-
- Map<int, double> aggregateDataByHour(List<DataModel> data, HR) {
-    
-    if(HR){
-      Map<int, List<double>> hourlyData = {};
-
-    // Group data by hour
-    for (var point in data) {
-      int hour = point.time.hour;
-      if (hourlyData.containsKey(hour)) {
-        hourlyData[hour]!.add(point.value.toDouble());
-      } else {
-        hourlyData[hour] = [point.value.toDouble()];
-      }
-    }
-
-    // Calculate the mean for each hour
-    Map<int, double> hourlyMeanData = {};
-    hourlyData.forEach((hour, values) {
-      if (values.isNotEmpty) {
-        double mean = values.reduce((a, b) => a + b) / values.length;
-        hourlyMeanData[hour] = mean;
-      }
-    });
-
-    return hourlyMeanData;
-  }
-    
-    else{
-      Map<int, double> hourlyData = {};
-    for (var point in data) {
-      int hour = point.time.hour;
-      if (hourlyData.containsKey(hour)) {
-        hourlyData[hour] = hourlyData[hour]! + point.value;
-      } else {
-        hourlyData[hour] = point.value.toDouble();
-      }
-    }
-    return hourlyData;
-    }
-  }
-  
