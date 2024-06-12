@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:substancesafe_beta/screens/homepage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:substancesafe_beta/models/doctor.dart';
+import 'package:substancesafe_beta/models/patient.dart';
 import 'package:substancesafe_beta/screens/new_account_page.dart';
+import 'package:substancesafe_beta/screens/homepage.dart';
+import 'package:substancesafe_beta/screens/patientPage.dart';
+import 'package:substancesafe_beta/utils/patient_list.dart'as patient;
+import 'package:substancesafe_beta/utils/doctor_list.dart'as doctor;
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
-
   @override
   _LoginPageState createState() => _LoginPageState();
 }
@@ -44,8 +47,35 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _login() async {
-    if (userController.text == 'bug@expert.com' &&
-        passwordController.text == '5TrNgP5Wd') {
+    List<Patient> patientList= await patient.getPatients();
+    List emails = patient.getEmails(patientList);
+    List passwords = patient.getPasswords(patientList);
+    List<Doctor> doctorList= await doctor.getDoctors();
+    List doc_emails = doctor.getEmails(doctorList); 
+    List doc_passwords = doctor.getPasswords(doctorList); 
+    if (emails.contains(userController.text) &&
+        passwords.contains(passwordController.text)) {
+      final sharedPreferences = await SharedPreferences.getInstance();
+      await sharedPreferences.setBool('isUserLogged', true);
+
+      if (rememberMe) {
+        await _storeCredentials(userController.text, passwordController.text);
+      } else {
+        await sharedPreferences.remove('username');
+        await sharedPreferences.remove('password');
+        await sharedPreferences.remove('rememberMe');
+      }
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => PatientPage()),
+      );
+    }else{
+
+    
+    
+    if (doc_emails.contains(userController.text) &&
+        doc_passwords.contains(passwordController.text)) {
       final sharedPreferences = await SharedPreferences.getInstance();
       await sharedPreferences.setBool('isUserLogged', true);
 
@@ -64,8 +94,15 @@ class _LoginPageState extends State<LoginPage> {
     } else {
       ScaffoldMessenger.of(context)
         ..removeCurrentSnackBar()
-        ..showSnackBar(const SnackBar(content: Text('Wrong email/password')));
-    }
+        ..showSnackBar(SnackBar(content: Text('Wrong email/password')));
+    }}
+  }
+
+  void _goToPatientPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => PatientPage()),
+    );
   }
 
   @override
@@ -73,17 +110,17 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text("Login Page"),
+        title: Text("Login Page"),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15),
+              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
               child: TextField(
                 controller: userController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Email',
                   hintText: 'Enter valid email id as abc@gmail.com',
@@ -96,7 +133,7 @@ class _LoginPageState extends State<LoginPage> {
               child: TextField(
                 obscureText: true,
                 controller: passwordController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Password',
                   hintText: 'Enter password',
@@ -114,7 +151,7 @@ class _LoginPageState extends State<LoginPage> {
                     });
                   },
                 ),
-                const Text('Remember Me'),
+                Text('Remember Me'),
               ],
             ),
             Container(
@@ -124,7 +161,7 @@ class _LoginPageState extends State<LoginPage> {
                   BoxDecoration(borderRadius: BorderRadius.circular(20)),
               child: ElevatedButton(
                 onPressed: _login,
-                child: const Text(
+                child: Text(
                   'Login',
                 ),
               ),
@@ -135,10 +172,12 @@ class _LoginPageState extends State<LoginPage> {
               decoration:
                   BoxDecoration(borderRadius: BorderRadius.circular(20)),
               child: ElevatedButton(
-                onPressed: (){Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => NewAccountPage()),
-      );} ,
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => NewAccountPage()),
+                  );
+                },
                 child: const Text(
                   'New? Create an account',
                 ),

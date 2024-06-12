@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:substancesafe_beta/models/doctor.dart';
 import 'package:substancesafe_beta/models/patient.dart';
 import 'package:substancesafe_beta/screens/homepage.dart';
+import 'package:substancesafe_beta/screens/patientPage.dart';
+import 'package:substancesafe_beta/utils/doctor_list.dart';
+import 'package:substancesafe_beta/utils/patient_list.dart';
 
 class NewAccountPage extends StatelessWidget {
   @override
@@ -34,16 +37,23 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       if (doc) {
-        Doctor(email: _email, name: _name, password: _password);
+        doctor_list
+            .add(Doctor(email: _email, name: _name, password: _password));
+            print(doctor_list);
       } else {
-        Patient(email: _email, name: _name, password: _password);
+        patient_list
+            .add(Patient(email: _email, name: _name, password: _password));
       }
 
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text('Account created for $_name')));
     }
   }
-  final List<String> _options = ['Doctor', 'Patient',];
+
+  final List<String> _options = [
+    'Doctor',
+    'Patient',
+  ];
   // Variable to hold the selected option
   String? _selectedOption;
 
@@ -59,6 +69,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
           key: _formKey,
           child: Column(
             children: [
+              //Name field
               TextFormField(
                 decoration: InputDecoration(labelText: 'Name'),
                 validator: (value) {
@@ -71,6 +82,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                   _name = value!;
                 },
               ),
+              //Email field
               TextFormField(
                 decoration: InputDecoration(labelText: 'Email'),
                 validator: (value) {
@@ -86,6 +98,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                   _email = value!;
                 },
               ),
+              //Password field
               TextFormField(
                 decoration: InputDecoration(labelText: 'Password'),
                 obscureText: true,
@@ -104,42 +117,50 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
               ),
               SizedBox(height: 20),
               Column(
-          children: _options.map((option) {
-            return ListTile(
-              title: Text(option),
-              leading: Radio<String>(
-                value: option,
-                groupValue: _selectedOption,
-                onChanged: (String? value) {
-                  setState(() {
-                    _selectedOption = value;
-                  });
-                },
+                children: _options.map((option) {
+                  return ListTile(
+                    title: Text(option),
+                    leading: Radio<String>(
+                      value: option,
+                      groupValue: _selectedOption,
+                      onChanged: (String? value) {
+                        setState(() {
+                          _selectedOption = value;
+                        });
+                      },
+                    ),
+                  );
+                }).toList(),
               ),
-            );
-          }).toList(),
-        ),
-        SizedBox(height: 20),
+              SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-          // Perform an action with the selected option
-          if (_selectedOption != null) {
-            if(_selectedOption=='Doctor'){
-              doc=true;
-            }
-            else{doc=false;}
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('No role selected')),
-            );
-          }
+                  // Perform an action with the selected option
+                  if (_selectedOption != null) {
+                    if (_selectedOption == 'Doctor') {
+                      doc = true;
+                    } else {
+                      doc = false;
+                    }
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('No role selected')),
+                    );
+                  }
                   _submit();
-                  // Navigate to NewPage and remove CurrentPage from the stack
-                  //After the PatientPage is created there will be and if depending on which account was created which will route to the correct page
-                  Navigator.pushReplacement(
+                  //Redirect to the corresponding Homepage
+                  if(doc){
+                    Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => HomePage()),
                   );
+                  }else{
+                    Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => PatientPage()),
+                  );
+                  }
+                  
                 },
                 child: Text('Create Account'),
               ),
