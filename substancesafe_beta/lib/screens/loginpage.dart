@@ -5,8 +5,9 @@ import 'package:substancesafe_beta/models/patient.dart';
 import 'package:substancesafe_beta/screens/new_account_page.dart';
 import 'package:substancesafe_beta/screens/homepage.dart';
 import 'package:substancesafe_beta/screens/patientPage.dart';
+import 'package:substancesafe_beta/utils/doctorList.dart' as doctor; 
 import 'package:substancesafe_beta/utils/patient_list.dart'as patient;
-import 'package:substancesafe_beta/utils/doctor_list.dart'as doctor;
+
 
 class LoginPage extends StatefulWidget {
   @override
@@ -17,19 +18,24 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController userController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   bool rememberMe = false;
-
+  final doctor.doctorList _preferences = doctor.doctorList([]);
+  List<Doctor> doctors = [];
   @override
   void initState() {
     super.initState();
     _loadStoredCredentials();
   }
+  
 
   Future<void> _loadStoredCredentials() async {
     final sharedPreferences = await SharedPreferences.getInstance();
     final storedUsername = sharedPreferences.getString('username');
     final storedPassword = sharedPreferences.getString('password');
     final storedRememberMe = sharedPreferences.getBool('rememberMe') ?? false;
-
+    List<Doctor> loadedDoctors = await _preferences.getDoctors();
+      setState(() {
+        doctors = loadedDoctors;
+      });
     if (storedRememberMe) {
       setState(() {
         userController.text = storedUsername ?? '';
@@ -50,9 +56,9 @@ class _LoginPageState extends State<LoginPage> {
     List<Patient> patientList= await patient.getPatients();
     List emails = patient.getEmails(patientList);
     List passwords = patient.getPasswords(patientList);
-    List<Doctor> doctorList= await doctor.getDoctors();
-    List doc_emails = doctor.getEmails(doctorList); 
-    List doc_passwords = doctor.getPasswords(doctorList); 
+    
+    List docEmails = await _preferences.getEmails(); 
+    List doc_passwords = await _preferences.getPasswords(); 
     if (emails.contains(userController.text) &&
         passwords.contains(passwordController.text)) {
       final sharedPreferences = await SharedPreferences.getInstance();
@@ -74,7 +80,7 @@ class _LoginPageState extends State<LoginPage> {
 
     
     
-    if (doc_emails.contains(userController.text) &&
+    if (docEmails.contains(userController.text) &&
         doc_passwords.contains(passwordController.text)) {
       final sharedPreferences = await SharedPreferences.getInstance();
       await sharedPreferences.setBool('isUserLogged', true);

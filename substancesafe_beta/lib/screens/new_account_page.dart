@@ -3,7 +3,7 @@ import 'package:substancesafe_beta/models/doctor.dart';
 import 'package:substancesafe_beta/models/patient.dart';
 import 'package:substancesafe_beta/screens/homepage.dart';
 import 'package:substancesafe_beta/screens/patientPage.dart';
-import 'package:substancesafe_beta/utils/doctor_list.dart';
+import 'package:substancesafe_beta/utils/doctorList.dart';
 import 'package:substancesafe_beta/utils/patient_list.dart';
 
 class NewAccountPage extends StatelessWidget {
@@ -32,14 +32,22 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
   // ignore: unused_field
   String _password = '';
   bool doc = false;
+   final doctorList _preferences = doctorList([]);
+  
 
-  void _submit() {
+  void _submit() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
+      //potrebbe essere rindondante questa parte, creo una lista di dottori e poi creo un doctorList con tutti i dottori ma quando 
+      //faccio add in doctorlist al suo interno creo una lista di dottori nuova che popolo con i dottori già presenti a cui poi aggungo 
+      //il nuovo medico e salvo la nuova lista al posto di quella vecchia. per cui non sembra avere senso dare già una lista piena di dottori al metodo add
+      //dato che si occupa lui di rimpolparla al suo interno.
+      List<Doctor> loadedDoctors = await _preferences.getDoctors(); 
+      doctorList doctor_list = doctorList(loadedDoctors);
       if (doc) {
         doctor_list
             .add(Doctor(email: _email, name: _name, password: _password));
-            print(doctor_list);
+            
       } else {
         patient_list
             .add(Patient(email: _email, name: _name, password: _password));

@@ -9,7 +9,7 @@ class Doctor {
   
    @override
   String toString() {
-    return 'User(email: $email, name: $name, password: $password)';
+    return 'Doctor(email: $email, name: $name, password: $password)';
   }
   
   // checking the password 
@@ -23,27 +23,20 @@ class Doctor {
     password = newPassword;
   }
 
-  factory Doctor.fromJson(Map<String, dynamic> jsonData) {
+  factory Doctor.fromJson(Map<String, dynamic> json) {
     return Doctor(
-      email: jsonData['email'],
-      name: jsonData['name'],
-      password: jsonData['password'],
+      email: json['email'],
+      name: json['name'],
+      password: json['password'],
     );
   }
-  static Map<String, dynamic> toMap(Doctor doctor) => {
-        'email': doctor.email,
-        'name': doctor.name,
-        'password': doctor.password,
-      };
-  static String encode(List<Doctor> doctor) => json.encode(
-        doctor
-            .map<Map<String, dynamic>>((doctor) => Doctor.toMap(doctor))
-            .toList(),
-      );
 
-  static List<Doctor> decode(String doctor) =>
-      (json.decode(doctor) as List<dynamic>)
-          .map<Doctor>((item) => Doctor.fromJson(item))
-          .toList();
+  Map<String, dynamic> toJson() {
+    return {
+      'email': email,
+      'name': name,
+      'password': password,
+    };
+  }
 }
 
