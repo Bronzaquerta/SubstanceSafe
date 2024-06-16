@@ -1,7 +1,8 @@
 // patientPage.dart
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:substancesafe_beta/utils/patient_list.dart';
+import 'package:substancesafe_beta/screens/loginpage.dart';
+import 'package:substancesafe_beta/utils/PatientList.dart';
 
 class PatientPage extends StatefulWidget {
   @override
@@ -23,12 +24,25 @@ class _PatientPageState extends State<PatientPage> {
     _loadNotes();
   }
 
+  void _logout(BuildContext context) async {
+    final sharedPreferences = await SharedPreferences.getInstance();
+    await sharedPreferences.remove('isUserLogged');
+    Navigator.pop(context);
+    Navigator.of(context)
+        .pushReplacement(MaterialPageRoute(builder: (context) => LoginPage()));
+  }
+
   Future<void> _loadNotes() async {
     final sharedPreferences = await SharedPreferences.getInstance();
     final savedNotes = sharedPreferences.getString(selectedPatientNumber) ?? '';
-    final savedDrinksAlcohol = sharedPreferences.getBool('${selectedPatientNumber}_drinksAlcohol') ?? false;
-    final savedSmokes = sharedPreferences.getBool('${selectedPatientNumber}_smokes') ?? false;
-    final savedDoesSports = sharedPreferences.getBool('${selectedPatientNumber}_doesSports') ?? false;
+    final savedDrinksAlcohol =
+        sharedPreferences.getBool('${selectedPatientNumber}_drinksAlcohol') ??
+            false;
+    final savedSmokes =
+        sharedPreferences.getBool('${selectedPatientNumber}_smokes') ?? false;
+    final savedDoesSports =
+        sharedPreferences.getBool('${selectedPatientNumber}_doesSports') ??
+            false;
     setState(() {
       notes = savedNotes;
       drinksAlcohol = savedDrinksAlcohol;
@@ -40,9 +54,11 @@ class _PatientPageState extends State<PatientPage> {
   Future<void> _saveNotes() async {
     final sharedPreferences = await SharedPreferences.getInstance();
     await sharedPreferences.setString(selectedPatientNumber, notes);
-    await sharedPreferences.setBool('${selectedPatientNumber}_drinksAlcohol', drinksAlcohol);
+    await sharedPreferences.setBool(
+        '${selectedPatientNumber}_drinksAlcohol', drinksAlcohol);
     await sharedPreferences.setBool('${selectedPatientNumber}_smokes', smokes);
-    await sharedPreferences.setBool('${selectedPatientNumber}_doesSports', doesSports);
+    await sharedPreferences.setBool(
+        '${selectedPatientNumber}_doesSports', doesSports);
   }
 
   @override
@@ -50,6 +66,21 @@ class _PatientPageState extends State<PatientPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Patient Page'),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              child: Text('Menu'),
+            ),
+            ListTile(
+              leading: Icon(Icons.logout),
+              title: Text('Logout'),
+              onTap: () => _logout(context),
+            ),
+          ],
+        ),
       ),
       body: Center(
         child: Padding(
@@ -133,7 +164,8 @@ class _PatientPageState extends State<PatientPage> {
                 onPressed: () async {
                   await _saveNotes();
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Notes and answers saved successfully')),
+                    SnackBar(
+                        content: Text('Notes and answers saved successfully')),
                   );
                 },
                 child: Text('Save Notes and Answers'),

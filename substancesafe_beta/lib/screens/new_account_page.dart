@@ -4,7 +4,7 @@ import 'package:substancesafe_beta/models/patient.dart';
 import 'package:substancesafe_beta/screens/homepage.dart';
 import 'package:substancesafe_beta/screens/patientPage.dart';
 import 'package:substancesafe_beta/utils/doctorList.dart';
-import 'package:substancesafe_beta/utils/patient_list.dart';
+import 'package:substancesafe_beta/utils/PatientList.dart';
 
 class NewAccountPage extends StatelessWidget {
   @override
@@ -32,22 +32,23 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
   // ignore: unused_field
   String _password = '';
   bool doc = false;
-   final doctorList _preferences = doctorList([]);
-  
+  final doctorList _preferences = doctorList([]);
+  final PatientList _patients = PatientList([]);
 
   void _submit() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      //potrebbe essere rindondante questa parte, creo una lista di dottori e poi creo un doctorList con tutti i dottori ma quando 
-      //faccio add in doctorlist al suo interno creo una lista di dottori nuova che popolo con i dottori già presenti a cui poi aggungo 
+      //potrebbe essere rindondante questa parte, creo una lista di dottori e poi creo un doctorList con tutti i dottori ma quando
+      //faccio add in doctorlist al suo interno creo una lista di dottori nuova che popolo con i dottori già presenti a cui poi aggungo
       //il nuovo medico e salvo la nuova lista al posto di quella vecchia. per cui non sembra avere senso dare già una lista piena di dottori al metodo add
       //dato che si occupa lui di rimpolparla al suo interno.
-      List<Doctor> loadedDoctors = await _preferences.getDoctors(); 
+      List<Doctor> loadedDoctors = await _preferences.getDoctors();
       doctorList doctor_list = doctorList(loadedDoctors);
+      List<Patient> loadedPatients = await _patients.getPatients();
+      PatientList patient_list = PatientList(loadedPatients);
       if (doc) {
         doctor_list
             .add(Doctor(email: _email, name: _name, password: _password));
-            
       } else {
         patient_list
             .add(Patient(email: _email, name: _name, password: _password));
@@ -157,18 +158,17 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                   }
                   _submit();
                   //Redirect to the corresponding Homepage
-                  if(doc){
+                  if (doc) {
                     Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => HomePage()),
-                  );
-                  }else{
+                      context,
+                      MaterialPageRoute(builder: (context) => HomePage()),
+                    );
+                  } else {
                     Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => PatientPage()),
-                  );
+                      context,
+                      MaterialPageRoute(builder: (context) => PatientPage()),
+                    );
                   }
-                  
                 },
                 child: Text('Create Account'),
               ),

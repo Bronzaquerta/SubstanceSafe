@@ -5,9 +5,8 @@ import 'package:substancesafe_beta/models/patient.dart';
 import 'package:substancesafe_beta/screens/new_account_page.dart';
 import 'package:substancesafe_beta/screens/homepage.dart';
 import 'package:substancesafe_beta/screens/patientPage.dart';
-import 'package:substancesafe_beta/utils/doctorList.dart' as doctor; 
-import 'package:substancesafe_beta/utils/patient_list.dart'as patient;
-
+import 'package:substancesafe_beta/utils/doctorList.dart' as doctor;
+import 'package:substancesafe_beta/utils/PatientList.dart' as patient;
 
 class LoginPage extends StatefulWidget {
   @override
@@ -20,12 +19,13 @@ class _LoginPageState extends State<LoginPage> {
   bool rememberMe = false;
   final doctor.doctorList _preferences = doctor.doctorList([]);
   List<Doctor> doctors = [];
+  final patient.PatientList _patients = patient.PatientList([]);
+  List<Patient> patients = [];
   @override
   void initState() {
     super.initState();
     _loadStoredCredentials();
   }
-  
 
   Future<void> _loadStoredCredentials() async {
     final sharedPreferences = await SharedPreferences.getInstance();
@@ -33,9 +33,9 @@ class _LoginPageState extends State<LoginPage> {
     final storedPassword = sharedPreferences.getString('password');
     final storedRememberMe = sharedPreferences.getBool('rememberMe') ?? false;
     List<Doctor> loadedDoctors = await _preferences.getDoctors();
-      setState(() {
-        doctors = loadedDoctors;
-      });
+    setState(() {
+      doctors = loadedDoctors;
+    });
     if (storedRememberMe) {
       setState(() {
         userController.text = storedUsername ?? '';
@@ -53,14 +53,13 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _login() async {
-    List<Patient> patientList= await patient.getPatients();
-    List emails = patient.getEmails(patientList);
-    List passwords = patient.getPasswords(patientList);
-    
-    List docEmails = await _preferences.getEmails(); 
-    List doc_passwords = await _preferences.getPasswords(); 
-    if (emails.contains(userController.text) &&
-        passwords.contains(passwordController.text)) {
+    List patientsEmails = await _patients.getEmails();
+    List patient_passwords = await _patients.getPasswords();
+
+    List docEmails = await _preferences.getEmails();
+    List doc_passwords = await _preferences.getPasswords();
+    if (patientsEmails.contains(userController.text) &&
+        patient_passwords.contains(passwordController.text)) {
       final sharedPreferences = await SharedPreferences.getInstance();
       await sharedPreferences.setBool('isUserLogged', true);
 
@@ -76,39 +75,30 @@ class _LoginPageState extends State<LoginPage> {
         context,
         MaterialPageRoute(builder: (_) => PatientPage()),
       );
-    }else{
-
-    
-    
-    if (docEmails.contains(userController.text) &&
-        doc_passwords.contains(passwordController.text)) {
-      final sharedPreferences = await SharedPreferences.getInstance();
-      await sharedPreferences.setBool('isUserLogged', true);
-
-      if (rememberMe) {
-        await _storeCredentials(userController.text, passwordController.text);
-      } else {
-        await sharedPreferences.remove('username');
-        await sharedPreferences.remove('password');
-        await sharedPreferences.remove('rememberMe');
-      }
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => HomePage()),
-      );
     } else {
-      ScaffoldMessenger.of(context)
-        ..removeCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text('Wrong email/password')));
-    }}
-  }
+      if (docEmails.contains(userController.text) &&
+          doc_passwords.contains(passwordController.text)) {
+        final sharedPreferences = await SharedPreferences.getInstance();
+        await sharedPreferences.setBool('isUserLogged', true);
 
-  void _goToPatientPage() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => PatientPage()),
-    );
+        if (rememberMe) {
+          await _storeCredentials(userController.text, passwordController.text);
+        } else {
+          await sharedPreferences.remove('username');
+          await sharedPreferences.remove('password');
+          await sharedPreferences.remove('rememberMe');
+        }
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => HomePage()),
+        );
+      } else {
+        ScaffoldMessenger.of(context)
+          ..removeCurrentSnackBar()
+          ..showSnackBar(SnackBar(content: Text('Wrong email/password')));
+      }
+    }
   }
 
   @override

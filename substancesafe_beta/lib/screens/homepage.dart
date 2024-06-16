@@ -6,7 +6,7 @@ import 'package:substancesafe_beta/models/patient.dart';
 import 'package:substancesafe_beta/screens/loginpage.dart';
 import 'package:substancesafe_beta/screens/patientDetailPage.dart';
 import 'package:substancesafe_beta/utils/impact.dart';
-import 'package:substancesafe_beta/utils/patient_list.dart'; // Import the patient list
+import 'package:substancesafe_beta/utils/PatientList.dart'; // Import the patient list
 
 class HomePage extends StatefulWidget {
   @override
@@ -46,17 +46,19 @@ class _HomePageState extends State<HomePage> {
     }
     return result.toString();
   }
-  List patientNames=List.empty(growable: true);
+
+  List patientNames = List.empty(growable: true);
   @override
-  void initState()  {
+  void initState() {
     super.initState();
     initializeList();
-  } 
-  Future<void> initializeList()async{
-    List<Patient> patientList= await getPatients();
-    patientNames=getNames(patientList);
   }
-  
+
+  Future<void> initializeList() async {
+    PatientList patientList = PatientList([]);
+    patientNames = await patientList.getNames();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -111,24 +113,25 @@ class _HomePageState extends State<HomePage> {
               'Patient List:',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-          Expanded(
-            //this could be done using the clickable tiles so that you get automaticaly redirected to the 
-            //corresponding patient detail page without the number since the number is a mess to implement
-            //i could add a number to each patient by getting the length of the patient_list and +1 to that
-            //and then assign the result to the patient in case
-            child: ListView.builder(
-              itemCount: patientNames.length,
-              itemBuilder: (context, index) {
-                patientNames.asMap();
-                // Encrypt the patient name using Caesar cipher with a shift of 3
-                String encryptedName = caesarEncrypt(patientNames[index]['name']!, 3);
-                return ListTile(
-                  title: Text(encryptedName), // Display the encrypted name
-                  subtitle: Text('Number: ${patients[index]['number']}'),
-                );
-              },
+            Expanded(
+              //this could be done using the clickable tiles so that you get automaticaly redirected to the
+              //corresponding patient detail page without the number since the number is a mess to implement
+              //i could add a number to each patient by getting the length of the patient_list and +1 to that
+              //and then assign the result to the patient in case
+              child: ListView.builder(
+                itemCount: patientNames.length,
+                itemBuilder: (context, index) {
+                  patientNames.asMap();
+                  // Encrypt the patient name using Caesar cipher with a shift of 3
+                  String encryptedName =
+                      caesarEncrypt(patientNames[index]['name']!, 3);
+                  return ListTile(
+                    title: Text(encryptedName), // Display the encrypted name
+                    subtitle: Text('Number: ${patients[index]['number']}'),
+                  );
+                },
+              ),
             ),
-          ),
             TextField(
               controller: patientNumberController,
               decoration: InputDecoration(

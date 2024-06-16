@@ -1,22 +1,20 @@
-import 'dart:convert';
-
 class Doctor {
   String email;
   String name;
   String password;
-  
+
   Doctor({required this.email, required this.name, required this.password});
-  
-   @override
+
+  @override
   String toString() {
     return 'Doctor(email: $email, name: $name, password: $password)';
   }
-  
-  // checking the password 
+
+  // checking the password
   bool checkPassword(String inputPassword) {
     return inputPassword == password;
   }
-  
+
   // updating the doctor information
   void updateDoctorInfo(String newName, String newPassword) {
     name = newName;
@@ -39,4 +37,3 @@ class Doctor {
     };
   }
 }
-
