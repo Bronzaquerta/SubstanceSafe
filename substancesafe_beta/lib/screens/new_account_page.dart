@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:substancesafe_beta/models/doctor.dart';
 import 'package:substancesafe_beta/models/patient.dart';
 import 'package:substancesafe_beta/screens/homepage.dart';
+import 'package:substancesafe_beta/screens/loginpage.dart';
 import 'package:substancesafe_beta/screens/patientPage.dart';
 import 'package:substancesafe_beta/utils/doctorList.dart';
 import 'package:substancesafe_beta/utils/PatientList.dart';
@@ -34,6 +35,12 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
   bool doc = false;
   final doctorList _preferences = doctorList([]);
   final PatientList _patients = PatientList([]);
+
+  void _logout(BuildContext context) {
+    Navigator.pop(context);
+    Navigator.of(context)
+        .pushReplacement(MaterialPageRoute(builder: (context) => LoginPage()));
+  }
 
   void _submit() async {
     if (_formKey.currentState!.validate()) {
@@ -71,6 +78,21 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Create Account'),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              child: Text('Menu'),
+            ),
+            ListTile(
+              leading: Icon(Icons.logout),
+              title: Text('Logout'),
+              onTap: () => _logout(context),
+            ),
+          ],
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

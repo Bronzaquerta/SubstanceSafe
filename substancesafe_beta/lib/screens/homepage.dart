@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:substancesafe_beta/models/patient.dart';
 import 'package:substancesafe_beta/screens/loginpage.dart';
 import 'package:substancesafe_beta/screens/patientDetailPage.dart';
 import 'package:substancesafe_beta/utils/impact.dart';
@@ -47,11 +46,10 @@ class _HomePageState extends State<HomePage> {
     return result.toString();
   }
 
-  List patientNames = List.empty(growable: true);
+  List patientNames = [];
   @override
   void initState() {
     super.initState();
-    initializeList();
   }
 
   Future<void> initializeList() async {
@@ -118,19 +116,38 @@ class _HomePageState extends State<HomePage> {
               //corresponding patient detail page without the number since the number is a mess to implement
               //i could add a number to each patient by getting the length of the patient_list and +1 to that
               //and then assign the result to the patient in case
-              child: ListView.builder(
-                itemCount: patientNames.length,
-                itemBuilder: (context, index) {
-                  patientNames.asMap();
-                  // Encrypt the patient name using Caesar cipher with a shift of 3
-                  String encryptedName =
-                      caesarEncrypt(patientNames[index]['name']!, 3);
-                  return ListTile(
-                    title: Text(encryptedName), // Display the encrypted name
-                    subtitle: Text('Number: ${patients[index]['number']}'),
-                  );
-                },
-              ),
+              child: FutureBuilder(
+                  future: initializeList(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Scaffold(
+                        body: Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      );
+                    } else if (patientNames.length != 0) {
+                      return ListView.builder(
+                        itemCount: patientNames.length,
+                        itemBuilder: (context, index) {
+                          patientNames.asMap();
+                          // Encrypt the patient name using Caesar cipher with a shift of 3
+                          String encryptedName =
+                              caesarEncrypt(patientNames[index]!, 3);
+                          return ListTile(
+                            title: Text(
+                                encryptedName), // Display the encrypted name
+                            subtitle: Text('Number: $index'),
+                          );
+                        },
+                      );
+                    } else {
+                      return const Scaffold(
+                        body: Center(
+                          child: Text('No patients to show'),
+                        ),
+                      );
+                    }
+                  }),
             ),
             TextField(
               controller: patientNumberController,
