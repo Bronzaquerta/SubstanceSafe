@@ -5,7 +5,7 @@ import 'package:substancesafe_beta/models/patient.dart';
 import 'package:substancesafe_beta/screens/new_account_page.dart';
 import 'package:substancesafe_beta/screens/homepage.dart';
 import 'package:substancesafe_beta/screens/patientPage.dart';
-import 'package:substancesafe_beta/utils/doctorList.dart' as doctor;
+import 'package:substancesafe_beta/utils/DoctorList.dart' as doctor;
 import 'package:substancesafe_beta/utils/PatientList.dart' as patient;
 
 class LoginPage extends StatefulWidget {
@@ -17,7 +17,7 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController userController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   bool rememberMe = false;
-  final doctor.doctorList _preferences = doctor.doctorList([]);
+  final doctor.DoctorList _preferences = doctor.DoctorList([]);
   List<Doctor> doctors = [];
   final patient.PatientList _patients = patient.PatientList([]);
   List<Patient> patients = [];

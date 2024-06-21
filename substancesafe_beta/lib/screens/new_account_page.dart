@@ -4,7 +4,7 @@ import 'package:substancesafe_beta/models/patient.dart';
 import 'package:substancesafe_beta/screens/homepage.dart';
 import 'package:substancesafe_beta/screens/loginpage.dart';
 import 'package:substancesafe_beta/screens/patientPage.dart';
-import 'package:substancesafe_beta/utils/doctorList.dart';
+import 'package:substancesafe_beta/utils/DoctorList.dart';
 import 'package:substancesafe_beta/utils/PatientList.dart';
 
 class NewAccountPage extends StatelessWidget {
@@ -33,7 +33,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
   // ignore: unused_field
   String _password = '';
   bool doc = false;
-  final doctorList _preferences = doctorList([]);
+  final DoctorList _preferences = DoctorList([]);
   final PatientList _patients = PatientList([]);
 
   void _logout(BuildContext context) {
@@ -48,7 +48,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
     //il nuovo medico e salvo la nuova lista al posto di quella vecchia. per cui non sembra avere senso dare già una lista piena di dottori al metodo add
     //dato che si occupa lui di rimpolparla al suo interno.
     List<Doctor> loadedDoctors = await _preferences.getDoctors();
-    doctorList doctor_list = doctorList(loadedDoctors);
+    DoctorList doctor_list = DoctorList(loadedDoctors);
     List<Patient> loadedPatients = await _patients.getPatients();
     PatientList patient_list = PatientList(loadedPatients);
     if (doc) {
@@ -163,9 +163,10 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
               ElevatedButton(
                 onPressed: () {
                   // Perform an action with the selected option
-                  if (_selectedOption != null) {
-                    if (_formKey.currentState!.validate()) {
-                      _formKey.currentState!.save();
+
+                  if (_formKey.currentState!.validate()) {
+                    _formKey.currentState!.save();
+                    if (_selectedOption != null) {
                       if (_selectedOption == 'Doctor' &&
                           _name != '' &&
                           _email != '' &&
@@ -193,6 +194,12 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                                   )),
                         );
                       }
+                    } else {
+                      ScaffoldMessenger.of(context)
+                        ..removeCurrentSnackBar()
+                        ..showSnackBar(
+                          SnackBar(content: Text('Please select a role')),
+                        );
                     }
                   } else {
                     ScaffoldMessenger.of(context)

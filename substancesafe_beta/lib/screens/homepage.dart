@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:substancesafe_beta/models/doctor.dart';
 import 'package:substancesafe_beta/screens/loginpage.dart';
 import 'package:substancesafe_beta/screens/patientDetailPage.dart';
-import 'package:substancesafe_beta/utils/doctorList.dart';
+import 'package:substancesafe_beta/utils/DoctorList.dart';
 import 'package:substancesafe_beta/utils/impact.dart';
 import 'package:substancesafe_beta/utils/PatientList.dart'; // Import the patient list
 
@@ -83,7 +83,7 @@ class _HomePageState extends State<HomePage> {
                 leading: Icon(Icons.delete),
                 title: Text('Delete account'),
                 onTap: () async {
-                  doctorList doctors = doctorList([]);
+                  DoctorList doctors = DoctorList([]);
                   List<Doctor> oldDoctors = await doctors.getDoctors();
                   String email = widget.doctor_username;
                   int indices = -1;
