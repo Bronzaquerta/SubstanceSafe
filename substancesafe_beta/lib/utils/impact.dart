@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:substancesafe_beta/models/data_model.dart';
+import 'package:intl/intl.dart';  // Lisätty
 
 class Impact {
   static String baseUrl = 'https://impact.dei.unipd.it/bwthw/';
@@ -34,21 +35,19 @@ class Impact {
     return response.statusCode;
   }
 
-  static Future<List<DataModel>> fetchStepsData(String patientNumber) async {
-    return fetchData(patientNumber, stepsEndpoint);
+  static Future<List<DataModel>> fetchStepsData(String patientNumber, {DateTime? date}) async {
+    return fetchData(patientNumber, stepsEndpoint, date);
   }
 
-  static Future<List<DataModel>> fetchHeartRateData(
-      String patientNumber) async {
-    return fetchData(patientNumber, heartRateEndpoint);
+  static Future<List<DataModel>> fetchHeartRateData(String patientNumber, {DateTime? date}) async {
+    return fetchData(patientNumber, heartRateEndpoint, date);
   }
 
-  static Future<List<DataModel>> fetchDistanceData(String patientNumber) async {
-    return fetchData(patientNumber, distanceEndpoint);
+  static Future<List<DataModel>> fetchDistanceData(String patientNumber, {DateTime? date}) async {
+    return fetchData(patientNumber, distanceEndpoint, date);
   }
 
-  static Future<List<DataModel>> fetchData(
-      String patientNumber, String endpoint) async {
+  static Future<List<DataModel>> fetchData(String patientNumber, String endpoint, DateTime? date) async {
     List<DataModel> result = [];
 
     final sp = await SharedPreferences.getInstance();
@@ -59,8 +58,8 @@ class Impact {
       access = sp.getString('access');
     }
 
-    const day = '2024-05-04';
-    final url = '$baseUrl$endpoint$patientNumber/day/$day/';
+    final formattedDate = date != null ? DateFormat('yyyy-MM-dd').format(date) : '2024-05-04';
+    final url = '$baseUrl$endpoint$patientNumber/day/$formattedDate/';
     final headers = {HttpHeaders.authorizationHeader: 'Bearer $access'};
 
     final response = await http.get(Uri.parse(url), headers: headers);
