@@ -26,8 +26,10 @@ class PatientList {
     savePatients(patient_list);
   }
 
-  void removePatient(Patient patient) {
+  void removePatient(Patient patient) async {
     _removeCredentials();
+    PatientList oldPatients = PatientList([]);
+    patient_list = await oldPatients.getPatients();
     patient_list.remove(patient);
     savePatients(patient_list);
   }

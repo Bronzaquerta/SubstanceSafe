@@ -73,7 +73,8 @@ class _LoginPageState extends State<LoginPage> {
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => PatientPage()),
+        MaterialPageRoute(
+            builder: (_) => PatientPage(patient_username: userController.text)),
       );
     } else {
       if (docEmails.contains(userController.text) &&
@@ -91,7 +92,10 @@ class _LoginPageState extends State<LoginPage> {
 
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => HomePage()),
+          MaterialPageRoute(
+              builder: (_) => HomePage(
+                    doctor_username: userController.text,
+                  )),
         );
       } else {
         ScaffoldMessenger.of(context)
