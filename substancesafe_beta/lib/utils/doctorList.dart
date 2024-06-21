@@ -3,20 +3,22 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:substancesafe_beta/models/doctor.dart';
 
-class doctorList {
+class DoctorList {
   List<Doctor> doctor_list = List.empty(growable: true);
-  doctorList(List<Doctor> doctors) {
+  DoctorList(List<Doctor> doctors) {
     doctor_list = doctors;
   }
   void add(Doctor doctor) async {
-    doctorList oldDoctors = doctorList([]);
+    DoctorList oldDoctors = DoctorList([]);
     doctor_list = await oldDoctors.getDoctors();
     doctor_list.add(doctor);
     saveDoctors(doctor_list);
   }
 
-  void removeDoctor(Doctor doctor) {
+  void removeDoctor(Doctor doctor) async {
     _removeCredentials();
+    DoctorList oldDoctors = DoctorList([]);
+    doctor_list = await oldDoctors.getDoctors();
     doctor_list.remove(doctor);
     saveDoctors(doctor_list);
   }

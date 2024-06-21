@@ -1,10 +1,13 @@
 // patientPage.dart
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:substancesafe_beta/models/patient.dart';
 import 'package:substancesafe_beta/screens/loginpage.dart';
 import 'package:substancesafe_beta/utils/PatientList.dart';
 
 class PatientPage extends StatefulWidget {
+  final String patient_username;
+  PatientPage({required this.patient_username});
   @override
   _PatientPageState createState() => _PatientPageState();
 }
@@ -79,6 +82,29 @@ class _PatientPageState extends State<PatientPage> {
               title: Text('Logout'),
               onTap: () => _logout(context),
             ),
+            ListTile(
+                leading: Icon(Icons.delete),
+                title: Text('Delete account'),
+                onTap: () async {
+                  PatientList patients = PatientList([]);
+                  List<Patient> oldPatients = await patients.getPatients();
+                  String email = widget.patient_username;
+                  int indices = -1;
+                  for (int i = 0; i < oldPatients.length; i++) {
+                    if (oldPatients[i].email == email) {
+                      indices = i;
+                    }
+                  }
+                  if (indices != -1) {
+                    patients.removePatient(oldPatients[indices]);
+                    _logout(context);
+                  } else {
+                    ScaffoldMessenger.of(context)
+                      ..removeCurrentSnackBar()
+                      ..showSnackBar(SnackBar(
+                          content: Text('Unable to cancel the account')));
+                  }
+                }),
           ],
         ),
       ),

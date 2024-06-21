@@ -2,13 +2,16 @@
 import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:substancesafe_beta/models/patient.dart';
+import 'package:substancesafe_beta/models/doctor.dart';
 import 'package:substancesafe_beta/screens/loginpage.dart';
 import 'package:substancesafe_beta/screens/patientDetailPage.dart';
+import 'package:substancesafe_beta/utils/DoctorList.dart';
 import 'package:substancesafe_beta/utils/impact.dart';
 import 'package:substancesafe_beta/utils/PatientList.dart'; // Import the patient list
 
 class HomePage extends StatefulWidget {
+  final String doctor_username;
+  HomePage({required this.doctor_username});
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -47,11 +50,10 @@ class _HomePageState extends State<HomePage> {
     return result.toString();
   }
 
-  List patientNames = List.empty(growable: true);
+  List patientNames = [];
   @override
   void initState() {
     super.initState();
-    initializeList();
   }
 
   Future<void> initializeList() async {
@@ -77,6 +79,29 @@ class _HomePageState extends State<HomePage> {
               title: Text('Logout'),
               onTap: () => _logout(context),
             ),
+            ListTile(
+                leading: Icon(Icons.delete),
+                title: Text('Delete account'),
+                onTap: () async {
+                  DoctorList doctors = DoctorList([]);
+                  List<Doctor> oldDoctors = await doctors.getDoctors();
+                  String email = widget.doctor_username;
+                  int indices = -1;
+                  for (int i = 0; i < oldDoctors.length; i++) {
+                    if (oldDoctors[i].email == email) {
+                      indices = i;
+                    }
+                  }
+                  if (indices != -1) {
+                    doctors.removeDoctor(oldDoctors[indices]);
+                    _logout(context);
+                  } else {
+                    ScaffoldMessenger.of(context)
+                      ..removeCurrentSnackBar()
+                      ..showSnackBar(SnackBar(
+                          content: Text('Unable to cancel the account')));
+                  }
+                }),
           ],
         ),
       ),
@@ -118,19 +143,38 @@ class _HomePageState extends State<HomePage> {
               //corresponding patient detail page without the number since the number is a mess to implement
               //i could add a number to each patient by getting the length of the patient_list and +1 to that
               //and then assign the result to the patient in case
-              child: ListView.builder(
-                itemCount: patientNames.length,
-                itemBuilder: (context, index) {
-                  patientNames.asMap();
-                  // Encrypt the patient name using Caesar cipher with a shift of 3
-                  String encryptedName =
-                      caesarEncrypt(patientNames[index]['name']!, 3);
-                  return ListTile(
-                    title: Text(encryptedName), // Display the encrypted name
-                    subtitle: Text('Number: ${patients[index]['number']}'),
-                  );
-                },
-              ),
+              child: FutureBuilder(
+                  future: initializeList(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Scaffold(
+                        body: Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      );
+                    } else if (patientNames.length != 0) {
+                      return ListView.builder(
+                        itemCount: patientNames.length,
+                        itemBuilder: (context, index) {
+                          patientNames.asMap();
+                          // Encrypt the patient name using Caesar cipher with a shift of 3
+                          String encryptedName =
+                              caesarEncrypt(patientNames[index]!, 3);
+                          return ListTile(
+                            title: Text(
+                                encryptedName), // Display the encrypted name
+                            subtitle: Text('Number: $index'),
+                          );
+                        },
+                      );
+                    } else {
+                      return const Scaffold(
+                        body: Center(
+                          child: Text('No patients to show'),
+                        ),
+                      );
+                    }
+                  }),
             ),
             TextField(
               controller: patientNumberController,

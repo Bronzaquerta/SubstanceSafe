@@ -3,8 +3,6 @@ import 'package:substancesafe_beta/screens/homepage.dart';
 import 'package:substancesafe_beta/screens/loginpage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
-
 void main() {
   runApp(const MyApp());
 } //main
@@ -28,7 +26,9 @@ class MyApp extends StatelessWidget {
                 sharedPreferences.getBool('isUserLogged') ?? false;
 
             if (isUserLogged) {
-              return HomePage();
+              return HomePage(
+                doctor_username: sharedPreferences.getString('username')!,
+              );
             } else {
               return LoginPage();
             }

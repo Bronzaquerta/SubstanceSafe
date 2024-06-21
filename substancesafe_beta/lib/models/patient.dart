@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class Patient {
   final String email;
   final String name;

@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:substancesafe_beta/models/doctor.dart';
 import 'package:substancesafe_beta/models/patient.dart';
 import 'package:substancesafe_beta/screens/homepage.dart';
+import 'package:substancesafe_beta/screens/loginpage.dart';
 import 'package:substancesafe_beta/screens/patientPage.dart';
-import 'package:substancesafe_beta/utils/doctorList.dart';
+import 'package:substancesafe_beta/utils/DoctorList.dart';
 import 'package:substancesafe_beta/utils/PatientList.dart';
 
 class NewAccountPage extends StatelessWidget {
@@ -32,31 +33,33 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
   // ignore: unused_field
   String _password = '';
   bool doc = false;
-  final doctorList _preferences = doctorList([]);
+  final DoctorList _preferences = DoctorList([]);
   final PatientList _patients = PatientList([]);
 
-  void _submit() async {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-      //potrebbe essere rindondante questa parte, creo una lista di dottori e poi creo un doctorList con tutti i dottori ma quando
-      //faccio add in doctorlist al suo interno creo una lista di dottori nuova che popolo con i dottori già presenti a cui poi aggungo
-      //il nuovo medico e salvo la nuova lista al posto di quella vecchia. per cui non sembra avere senso dare già una lista piena di dottori al metodo add
-      //dato che si occupa lui di rimpolparla al suo interno.
-      List<Doctor> loadedDoctors = await _preferences.getDoctors();
-      doctorList doctor_list = doctorList(loadedDoctors);
-      List<Patient> loadedPatients = await _patients.getPatients();
-      PatientList patient_list = PatientList(loadedPatients);
-      if (doc) {
-        doctor_list
-            .add(Doctor(email: _email, name: _name, password: _password));
-      } else {
-        patient_list
-            .add(Patient(email: _email, name: _name, password: _password));
-      }
+  void _logout(BuildContext context) {
+    Navigator.pop(context);
+    Navigator.of(context)
+        .pushReplacement(MaterialPageRoute(builder: (context) => LoginPage()));
+  }
 
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Account created for $_name')));
+  void _submit() async {
+    //potrebbe essere rindondante questa parte, creo una lista di dottori e poi creo un doctorList con tutti i dottori ma quando
+    //faccio add in doctorlist al suo interno creo una lista di dottori nuova che popolo con i dottori già presenti a cui poi aggungo
+    //il nuovo medico e salvo la nuova lista al posto di quella vecchia. per cui non sembra avere senso dare già una lista piena di dottori al metodo add
+    //dato che si occupa lui di rimpolparla al suo interno.
+    List<Doctor> loadedDoctors = await _preferences.getDoctors();
+    DoctorList doctor_list = DoctorList(loadedDoctors);
+    List<Patient> loadedPatients = await _patients.getPatients();
+    PatientList patient_list = PatientList(loadedPatients);
+    if (doc) {
+      doctor_list.add(Doctor(email: _email, name: _name, password: _password));
+    } else {
+      patient_list
+          .add(Patient(email: _email, name: _name, password: _password));
     }
+
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('Account created for $_name')));
   }
 
   final List<String> _options = [
@@ -72,6 +75,21 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
       appBar: AppBar(
         title: Text('Create Account'),
       ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              child: Text('Menu'),
+            ),
+            ListTile(
+              leading: Icon(Icons.logout),
+              title: Text('Logout'),
+              onTap: () => _logout(context),
+            ),
+          ],
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -82,7 +100,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
               TextFormField(
                 decoration: InputDecoration(labelText: 'Name'),
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
+                  if (value == null || value.isEmpty || value == '') {
                     return 'Please enter your name';
                   }
                   return null;
@@ -95,7 +113,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
               TextFormField(
                 decoration: InputDecoration(labelText: 'Email'),
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
+                  if (value == null || value.isEmpty || value == '') {
                     return 'Please enter your email';
                   }
                   if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
@@ -145,29 +163,52 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
               ElevatedButton(
                 onPressed: () {
                   // Perform an action with the selected option
-                  if (_selectedOption != null) {
-                    if (_selectedOption == 'Doctor') {
-                      doc = true;
+
+                  if (_formKey.currentState!.validate()) {
+                    _formKey.currentState!.save();
+                    if (_selectedOption != null) {
+                      if (_selectedOption == 'Doctor' &&
+                          _name != '' &&
+                          _email != '' &&
+                          _password != '') {
+                        doc = true;
+                        _submit();
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => HomePage(
+                                    doctor_username: _email,
+                                  )),
+                        );
+                      } else if (_selectedOption == 'Patient' &&
+                          _name != '' &&
+                          _email != '' &&
+                          _password != '') {
+                        doc = false;
+                        _submit();
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => PatientPage(
+                                    patient_username: _email,
+                                  )),
+                        );
+                      }
                     } else {
-                      doc = false;
+                      ScaffoldMessenger.of(context)
+                        ..removeCurrentSnackBar()
+                        ..showSnackBar(
+                          SnackBar(content: Text('Please select a role')),
+                        );
                     }
                   } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('No role selected')),
-                    );
-                  }
-                  _submit();
-                  //Redirect to the corresponding Homepage
-                  if (doc) {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => HomePage()),
-                    );
-                  } else {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => PatientPage()),
-                    );
+                    ScaffoldMessenger.of(context)
+                      ..removeCurrentSnackBar()
+                      ..showSnackBar(
+                        SnackBar(
+                            content: Text(
+                                'Please fill out the form completely before submitting')),
+                      );
                   }
                 },
                 child: Text('Create Account'),
