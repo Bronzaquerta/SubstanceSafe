@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:substancesafe_beta/screens/new_account_page.dart';
 import 'package:substancesafe_beta/screens/homepage.dart';
 import 'package:substancesafe_beta/screens/patientPage.dart';
+import 'package:substancesafe_beta/utils/DoctorList.dart' as doctor;
+import 'package:substancesafe_beta/utils/PatientList.dart' as patient;
 
 class LoginPage extends StatefulWidget {
   @override
@@ -12,6 +15,9 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController userController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   bool rememberMe = false;
+  final doctor.DoctorList _preferences = doctor.DoctorList([]);
+
+  final patient.PatientList _patients = patient.PatientList([]);
 
   @override
   void initState() {
@@ -42,8 +48,13 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _login() async {
-    if (userController.text == 'bug@expert.com' &&
-        passwordController.text == '5TrNgP5Wd') {
+    List patientsEmails = await _patients.getEmails();
+    List patient_passwords = await _patients.getPasswords();
+
+    List docEmails = await _preferences.getEmails();
+    List doc_passwords = await _preferences.getPasswords();
+    if (patientsEmails.contains(userController.text) &&
+        patient_passwords.contains(passwordController.text)) {
       final sharedPreferences = await SharedPreferences.getInstance();
       await sharedPreferences.setBool('isUserLogged', true);
 
@@ -57,20 +68,36 @@ class _LoginPageState extends State<LoginPage> {
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => HomePage()),
+        MaterialPageRoute(
+            builder: (_) => PatientPage(patient_username: userController.text)),
       );
     } else {
-      ScaffoldMessenger.of(context)
-        ..removeCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text('Wrong email/password')));
-    }
-  }
+      if (docEmails.contains(userController.text) &&
+          doc_passwords.contains(passwordController.text)) {
+        final sharedPreferences = await SharedPreferences.getInstance();
+        await sharedPreferences.setBool('isUserLogged', true);
 
-  void _goToPatientPage() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => PatientPage()),
-    );
+        if (rememberMe) {
+          await _storeCredentials(userController.text, passwordController.text);
+        } else {
+          await sharedPreferences.remove('username');
+          await sharedPreferences.remove('password');
+          await sharedPreferences.remove('rememberMe');
+        }
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (_) => HomePage(
+                    doctor_username: userController.text,
+                  )),
+        );
+      } else {
+        ScaffoldMessenger.of(context)
+          ..removeCurrentSnackBar()
+          ..showSnackBar(const SnackBar(content: Text('Wrong email/password')));
+      }
+    }
   }
 
   @override
@@ -84,20 +111,8 @@ class _LoginPageState extends State<LoginPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Container(
-              height: 50,
-              width: 250,
-              decoration:
-                  BoxDecoration(borderRadius: BorderRadius.circular(20)),
-              child: ElevatedButton(
-                onPressed: _goToPatientPage,
-                child: Text(
-                  'To Patient Page',
-                ),
-              ),
-            ),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 15,vertical: 15),
+              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
               child: TextField(
                 controller: userController,
                 decoration: InputDecoration(
@@ -146,7 +161,24 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
             ),
-            SizedBox(
+            Container(
+              height: 50,
+              width: 250,
+              decoration:
+                  BoxDecoration(borderRadius: BorderRadius.circular(20)),
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => NewAccountPage()),
+                  );
+                },
+                child: const Text(
+                  'New? Create an account',
+                ),
+              ),
+            ),
+            const SizedBox(
               height: 130,
             ),
           ],

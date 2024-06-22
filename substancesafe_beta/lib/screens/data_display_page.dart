@@ -6,9 +6,8 @@ import 'package:substancesafe_beta/utils/impact.dart';
 class DataDisplayPage extends StatefulWidget {
   final String patientNumber;
   final String dataType;
-  
 
-  DataDisplayPage({required this.patientNumber, required this.dataType});
+  const DataDisplayPage({super.key, required this.patientNumber, required this.dataType});
 
   @override
   _DataDisplayPageState createState() => _DataDisplayPageState();
@@ -16,137 +15,277 @@ class DataDisplayPage extends StatefulWidget {
 
 class _DataDisplayPageState extends State<DataDisplayPage> {
   late Future<List<DataModel>> _data;
-  bool isHR=false;
+  late DateTime _selectedDate;
+  bool _showAllPoints = true;
+  bool _showLineChart = true;
+  bool _showAverageLine = false;  // New state variable for average line
+
   @override
   void initState() {
     super.initState();
-    _data = fetchData(widget.patientNumber, widget.dataType);
-    if(widget.dataType == 'heart_rate'){isHR=true;}
+    _selectedDate = DateTime.now().subtract(Duration(days: 1));
+    _data = fetchData(_selectedDate);
   }
 
-  Future<List<DataModel>> fetchData(
-      String patientNumber, String dataType) async {
-    switch (dataType) {
+  Future<List<DataModel>> fetchData(DateTime date) async {
+    switch (widget.dataType) {
       case 'steps':
-        return Impact.fetchStepsData('Jpefaq6m58');
+        return Impact.fetchStepsData('Jpefaq6m58', date: date);
       case 'heart_rate':
-        return Impact.fetchHeartRateData('Jpefaq6m58');
+        return Impact.fetchHeartRateData('Jpefaq6m58', date: date);
       case 'distance':
-        return Impact.fetchDistanceData('Jpefaq6m58');
+        return Impact.fetchDistanceData('Jpefaq6m58', date: date);
       default:
         throw Exception('Unknown data type');
     }
   }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2020, 1),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+        _data = fetchData(_selectedDate);
+      });
+    }
+  }
+
+  void _changeDate(int days) {
+    setState(() {
+      _selectedDate = _selectedDate.add(Duration(days: days));
+      _data = fetchData(_selectedDate);
+    });
+  }
+
+  List<FlSpot> _processData(List<DataModel> data) {
+    if (_showAllPoints) {
+      return data.map((dataPoint) => FlSpot(
+        dataPoint.time.millisecondsSinceEpoch.toDouble(),
+        dataPoint.value.toDouble(),
+      )).toList();
+    } else {
+      Map<int, List<DataModel>> groupedData = {};
+      for (var dataPoint in data) {
+        int hour = dataPoint.time.hour;
+        if (!groupedData.containsKey(hour)) {
+          groupedData[hour] = [];
+        }
+        groupedData[hour]!.add(dataPoint);
+      }
+      return groupedData.entries.map((entry) {
+        double avgValue = entry.value.map((e) => e.value).reduce((a, b) => a + b) / entry.value.length;
+        return FlSpot(entry.key.toDouble(), avgValue.toDouble());
+      }).toList();
+    }
+  }
+
+  double _calculateAverage(List<DataModel> data) {
+    double sum = data.map((e) => e.value).reduce((a, b) => a + b).toDouble();
+    return sum / data.length;
+  }
+
+  Widget _buildChart(List<DataModel> data) {
+  List<FlSpot> spots = _processData(data);
+  double average = _calculateAverage(data);
+
+  return _showLineChart
+      ? LineChart(
+          LineChartData(
+            gridData: FlGridData(show: true),
+            titlesData: FlTitlesData(
+              bottomTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  interval: 3600 * 1000,  // Asetetaan väli yhden tunnin välein
+                  getTitlesWidget: (value, meta) {
+                    DateTime date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
+                    String formattedDate = "${date.hour}:${date.minute.toString().padLeft(2, '0')}";
+                    return SideTitleWidget(
+                      axisSide: meta.axisSide,
+                      space: 8.0,
+                      child: Text(
+                        formattedDate,
+                        style: TextStyle(fontSize: 10),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              topTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: false,
+                ),
+              ),
+            ),
+            borderData: FlBorderData(show: true),
+            lineBarsData: [
+              LineChartBarData(
+                spots: spots,
+                isCurved: true,
+                color: Colors.blue,
+                barWidth: 4,
+                belowBarData: BarAreaData(
+                  show: true,
+                  color: Colors.blue.withOpacity(0.3),
+                ),
+              ),
+              if (_showAverageLine)
+                LineChartBarData(
+                  spots: spots.map((spot) => FlSpot(spot.x, average)).toList(),
+                  isCurved: false,
+                  color: Colors.red,
+                  barWidth: 2,
+                ),
+            ],
+          ),
+        )
+      : BarChart(
+          BarChartData(
+            alignment: BarChartAlignment.spaceAround,
+            titlesData: FlTitlesData(
+              bottomTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  interval: 3600 * 1000,  // Asetetaan väli yhden tunnin välein
+                  getTitlesWidget: (value, meta) {
+                    DateTime date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
+                    String formattedDate = "${date.hour}:${date.minute.toString().padLeft(2, '0')}";
+                    return SideTitleWidget(
+                      axisSide: meta.axisSide,
+                      space: 8.0,
+                      child: Text(
+                        formattedDate,
+                        style: TextStyle(fontSize: 10),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              topTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: false,
+                ),
+              ),
+            ),
+            borderData: FlBorderData(show: true),
+            barGroups: spots.map((spot) {
+              return BarChartGroupData(
+                x: spot.x.toInt(),
+                barRods: [
+                  BarChartRodData(
+                    toY: spot.y,
+                    gradient: LinearGradient(colors: [Colors.blue]),
+                  ),
+                ],
+              );
+            }).toList(),
+          ),
+        );
+}
+
 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title:
-            Text('${widget.dataType} data for Patient ${widget.patientNumber}'),
+        title: Text('${widget.dataType} data for Patient ${widget.patientNumber}'),
+        actions: [
+          IconButton(
+            onPressed: () => _selectDate(context),
+            icon: Icon(Icons.calendar_today),
+          ),
+        ],
       ),
-      body: FutureBuilder<List<DataModel>>(
-        future: _data,
-        builder: (context, snapshot) {
-          print('Snapshot data: ${snapshot.data}');
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No data available'));
-          } else {
-            final data = snapshot.data!;
-            Map<int, double> aggregatedData = aggregateDataByHour(data, isHR);
-
-    List<FlSpot> spots = aggregatedData.entries.map((entry) {
-      return FlSpot(entry.key.toDouble(), entry.value);
-    }).toList();
-            return Column(
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: LineChart(LineChartData(
-                      gridData: FlGridData(show: true),
-                      titlesData: FlTitlesData(show: true),
-                      borderData: FlBorderData(show: true),
-                      lineBarsData: [
-                        LineChartBarData(
-                          spots: spots,
-                          isCurved: false,
-                          color: Colors.blue,
-                          barWidth: 4,
-                          belowBarData: BarAreaData(
-                            show: true,
-                            color: Colors.blue.withOpacity(0.3),
-                          ),
+      body: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextButton(onPressed: () => _changeDate(-1), child: Text('-')),
+              Text('Date: ${_selectedDate.toLocal()}'.split(' ')[0]),
+              TextButton(onPressed: () => _changeDate(1), child: Text('+')),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Show all points'),
+              Switch(
+                value: _showAllPoints,
+                onChanged: (value) {
+                  setState(() {
+                    _showAllPoints = value;
+                  });
+                },
+              ),
+              Text('Show line chart'),
+              Switch(
+                value: _showLineChart,
+                onChanged: (value) {
+                  setState(() {
+                    _showLineChart = value;
+                  });
+                },
+              ),
+              Text('Show average line'),
+              Switch(
+                value: _showAverageLine,
+                onChanged: (value) {
+                  setState(() {
+                    _showAverageLine = value;
+                  });
+                },
+              ),
+            ],
+          ),
+          Expanded(
+            child: FutureBuilder<List<DataModel>>(
+              future: _data,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Center(child: Text('No data available'));
+                } else {
+                  final data = snapshot.data!;
+                  double average = _calculateAverage(data);
+                  return Column(
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: _buildChart(data),
                         ),
-                      ],
-                    )),
-                  ),
-                ),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: data.length,
-                    itemBuilder: (context, index) {
-                      final item = data[index];
-                      return ListTile(
-                        title: Text('Time: ${item.time}'),
-                        subtitle: Text('${widget.dataType}: ${item.value}'),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            );
-          }
-        },
+                      ),
+                      Text('Average: ${average.toStringAsFixed(2)}'),
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: data.length,
+                          itemBuilder: (context, index) {
+                            final item = data[index];
+                            return ListTile(
+                              title: Text('Time: ${item.time}'),
+                              subtitle: Text('${widget.dataType}: ${item.value}'),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  );
+                }
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
 }
-
-
- Map<int, double> aggregateDataByHour(List<DataModel> data, HR) {
-    
-    if(HR){
-      Map<int, List<double>> hourlyData = {};
-
-    // Group data by hour
-    for (var point in data) {
-      int hour = point.time.hour;
-      if (hourlyData.containsKey(hour)) {
-        hourlyData[hour]!.add(point.value.toDouble());
-      } else {
-        hourlyData[hour] = [point.value.toDouble()];
-      }
-    }
-
-    // Calculate the mean for each hour
-    Map<int, double> hourlyMeanData = {};
-    hourlyData.forEach((hour, values) {
-      if (values.isNotEmpty) {
-        double mean = values.reduce((a, b) => a + b) / values.length;
-        hourlyMeanData[hour] = mean;
-      }
-    });
-
-    return hourlyMeanData;
-  }
-    
-    else{
-      Map<int, double> hourlyData = {};
-    for (var point in data) {
-      int hour = point.time.hour;
-      if (hourlyData.containsKey(hour)) {
-        hourlyData[hour] = hourlyData[hour]! + point.value;
-      } else {
-        hourlyData[hour] = point.value.toDouble();
-      }
-    }
-    return hourlyData;
-    }
-  }
-  

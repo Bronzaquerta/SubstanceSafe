@@ -1,10 +1,9 @@
-// patientDetailPage.dart
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:substancesafe_beta/screens/data_display_page.dart';
+import 'package:substancesafe_beta/utils/PatientList.dart';
 
 class PatientDetailPage extends StatefulWidget {
-  final String patientNumber;
+  final int patientNumber;
 
   PatientDetailPage({required this.patientNumber});
 
@@ -14,7 +13,7 @@ class PatientDetailPage extends StatefulWidget {
 
 class _PatientDetailPageState extends State<PatientDetailPage> {
   late TextEditingController notesController;
-  late String notes;
+  String notes = '';
   bool drinksAlcohol = false;
   bool smokes = false;
   bool doesSports = false;
@@ -27,23 +26,20 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
   }
 
   Future<void> _loadNotes() async {
-    final sharedPreferences = await SharedPreferences.getInstance();
-    final savedNotes = sharedPreferences.getString(widget.patientNumber) ?? '';
-    final savedDrinksAlcohol = sharedPreferences.getBool('${widget.patientNumber}_drinksAlcohol') ?? false;
-    final savedSmokes = sharedPreferences.getBool('${widget.patientNumber}_smokes') ?? false;
-    final savedDoesSports = sharedPreferences.getBool('${widget.patientNumber}_doesSports') ?? false;
+    final savedNotes = await PatientList([]).getNotes(widget.patientNumber);
+
+    List<bool> savedDatas =
+        await PatientList([]).retriveDatas(widget.patientNumber);
     setState(() {
       notes = savedNotes;
-      notesController.text = savedNotes;
-      drinksAlcohol = savedDrinksAlcohol;
-      smokes = savedSmokes;
-      doesSports = savedDoesSports;
+      drinksAlcohol = savedDatas[0];
+      smokes = savedDatas[2];
+      doesSports = savedDatas[1];
     });
   }
 
   Future<void> _saveNotes(String notes) async {
-    final sharedPreferences = await SharedPreferences.getInstance();
-    await sharedPreferences.setString(widget.patientNumber, notes); // Save notes with key as patientNumber
+    PatientList([]).updateNotes(widget.patientNumber, notes);
   }
 
   @override
@@ -62,7 +58,7 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => DataDisplayPage(
-                      patientNumber: widget.patientNumber,
+                      patientNumber: widget.patientNumber.toString(),
                       dataType: 'steps',
                     ),
                   ),
@@ -76,7 +72,7 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => DataDisplayPage(
-                      patientNumber: widget.patientNumber,
+                      patientNumber: widget.patientNumber.toString(),
                       dataType: 'heart_rate',
                     ),
                   ),
@@ -90,7 +86,7 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => DataDisplayPage(
-                      patientNumber: widget.patientNumber,
+                      patientNumber: widget.patientNumber.toString(),
                       dataType: 'distance',
                     ),
                   ),
@@ -104,17 +100,19 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
               child: Column(
                 children: [
                   TextField(
-                    controller: notesController,
                     maxLines: 4,
                     decoration: InputDecoration(
                       labelText: 'Notes',
                       border: OutlineInputBorder(),
                     ),
+                    onChanged: (value) {
+                      notes = value;
+                    },
+                    controller: TextEditingController(text: notes),
                   ),
                   SizedBox(height: 10),
                   ElevatedButton(
                     onPressed: () async {
-                      String notes = notesController.text;
                       await _saveNotes(notes);
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Notes saved successfully')),
