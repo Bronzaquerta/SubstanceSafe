@@ -187,26 +187,26 @@ class _HomePageState extends State<HomePage> {
                   return;
                 }
 
-
                 String patientNumber = patientNumberController.text;
                 int? patientNumberInt = int.tryParse(patientNumber);
 
-                if (patientNumberInt == null || patientNumberInt < 0 || patientNumberInt >= patientNames.length) {
+                if (patientNumberInt == null ||
+                    patientNumberInt < 0 ||
+                    patientNumberInt >= patientNames.length) {
                   ScaffoldMessenger.of(context)
                     ..removeCurrentSnackBar()
                     ..showSnackBar(SnackBar(
                         content: Text('Please enter a valid patient number')));
                   return;
+                } else {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          PatientDetailPage(patientNumber: patientNumberInt),
+                    ),
+                  );
                 }
-
-
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        PatientDetailPage(patientNumber: patientNumber),
-                  ),
-                );
               },
               child: Text('Go Patient Page'),
             ),
