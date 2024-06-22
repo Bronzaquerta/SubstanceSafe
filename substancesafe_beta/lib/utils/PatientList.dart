@@ -32,15 +32,19 @@ class PatientList {
     savePatients(patient_list);
   }
 
-  void updatedDatas(
-      int patient_number, bool hasDrank, bool doesSport, bool isSmoker) async {
+  void updatedDatas(int patient_number, bool? hasDrank, bool? doesSport,
+      bool? isSmoker, String notes) async {
     PatientList oldPatients = PatientList([]);
     patient_list = await oldPatients.getPatients();
-    Patient modifiedPatient = patient_list[patient_number]
-        .copyWith(hasDrank: hasDrank, doesSport: doesSport, isSmoker: isSmoker);
+    Patient modifiedPatient = patient_list[patient_number].copyWith(
+        hasDrank: hasDrank ?? patient_list[patient_number].hasDrank,
+        doesSport: doesSport ?? patient_list[patient_number].doesSport,
+        isSmoker: isSmoker ?? patient_list[patient_number].isSmoker,
+        notes: notes);
     int index =
         patient_list.indexWhere((obj) => obj.email == modifiedPatient.email);
     patient_list[index] = modifiedPatient;
+    savePatients(patient_list);
   }
 
   Future<List<bool>> retriveDatas(int patient_number) async {
