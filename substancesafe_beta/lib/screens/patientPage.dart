@@ -22,7 +22,6 @@ class _PatientPageState extends State<PatientPage> {
   @override
   void initState() {
     super.initState();
-    // Initialize selectedPatientNumber with the first patient's number
     selectedPatientNumber = patients.isNotEmpty ? patients[0]['number']! : '';
     _loadNotes();
   }

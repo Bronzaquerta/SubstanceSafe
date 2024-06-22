@@ -1,4 +1,4 @@
-
+// patientDetailPage.dart
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:substancesafe_beta/screens/data_display_page.dart';
@@ -43,7 +43,7 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
 
   Future<void> _saveNotes(String notes) async {
     final sharedPreferences = await SharedPreferences.getInstance();
-    await sharedPreferences.setString(widget.patientNumber, notes); // Save notes with key as patientNumber
+    await sharedPreferences.setString(widget.patientNumber, notes); 
   }
 
   @override
