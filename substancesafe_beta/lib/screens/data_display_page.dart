@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:substancesafe_beta/models/data_model.dart';
 import 'package:substancesafe_beta/utils/impact.dart';
-import 'package:intl/intl.dart';
 
 class DataDisplayPage extends StatefulWidget {
   final String patientNumber;
@@ -19,11 +18,12 @@ class _DataDisplayPageState extends State<DataDisplayPage> {
   late DateTime _selectedDate;
   bool _showAllPoints = true;
   bool _showLineChart = true;
+  bool _showAverageLine = false;  // New state variable for average line
 
   @override
   void initState() {
     super.initState();
-    _selectedDate = DateTime.now();
+    _selectedDate = DateTime.now().subtract(Duration(days: 1));
     _data = fetchData(_selectedDate);
   }
 
@@ -55,6 +55,13 @@ class _DataDisplayPageState extends State<DataDisplayPage> {
     }
   }
 
+  void _changeDate(int days) {
+    setState(() {
+      _selectedDate = _selectedDate.add(Duration(days: days));
+      _data = fetchData(_selectedDate);
+    });
+  }
+
   List<FlSpot> _processData(List<DataModel> data) {
     if (_showAllPoints) {
       return data.map((dataPoint) => FlSpot(
@@ -62,7 +69,6 @@ class _DataDisplayPageState extends State<DataDisplayPage> {
         dataPoint.value.toDouble(),
       )).toList();
     } else {
-      // Calculate hourly averages
       Map<int, List<DataModel>> groupedData = {};
       for (var dataPoint in data) {
         int hour = dataPoint.time.hour;
@@ -78,40 +84,111 @@ class _DataDisplayPageState extends State<DataDisplayPage> {
     }
   }
 
+  double _calculateAverage(List<DataModel> data) {
+    double sum = data.map((e) => e.value).reduce((a, b) => a + b).toDouble();
+    return sum / data.length;
+  }
+
   Widget _buildChart(List<DataModel> data) {
-    List<FlSpot> spots = _processData(data);
-    return _showLineChart
-      ? LineChart(LineChartData(
-          gridData: FlGridData(show: true),
-          titlesData: FlTitlesData(show: true),
-          borderData: FlBorderData(show: true),
-          lineBarsData: [
-            LineChartBarData(
-              spots: spots,
-              isCurved: true,
-              color: Colors.blue,
-              barWidth: 4,
-              belowBarData: BarAreaData(
-                show: true,
-                color: Colors.blue.withOpacity(0.3),
+  List<FlSpot> spots = _processData(data);
+  double average = _calculateAverage(data);
+
+  return _showLineChart
+      ? LineChart(
+          LineChartData(
+            gridData: FlGridData(show: true),
+            titlesData: FlTitlesData(
+              bottomTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  interval: 3600 * 1000,  // Asetetaan väli yhden tunnin välein
+                  getTitlesWidget: (value, meta) {
+                    DateTime date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
+                    String formattedDate = "${date.hour}:${date.minute.toString().padLeft(2, '0')}";
+                    return SideTitleWidget(
+                      axisSide: meta.axisSide,
+                      space: 8.0,
+                      child: Text(
+                        formattedDate,
+                        style: TextStyle(fontSize: 10),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              topTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: false,
+                ),
               ),
             ),
-          ],
-        ))
-      : BarChart(BarChartData(
-          alignment: BarChartAlignment.spaceAround,
-          titlesData: FlTitlesData(show: true),
-          borderData: FlBorderData(show: true),
-          barGroups: spots.map((spot) {
-            return BarChartGroupData(x: spot.x.toInt(), barRods: [
-              BarChartRodData(
-                toY: spot.y, // Muutetaan y to toY
-                gradient: LinearGradient(colors: [Colors.blue]), // Muutetaan colors gradientiksi
+            borderData: FlBorderData(show: true),
+            lineBarsData: [
+              LineChartBarData(
+                spots: spots,
+                isCurved: true,
+                color: Colors.blue,
+                barWidth: 4,
+                belowBarData: BarAreaData(
+                  show: true,
+                  color: Colors.blue.withOpacity(0.3),
+                ),
               ),
-            ]);
-          }).toList(),
-        ));
-  }
+              if (_showAverageLine)
+                LineChartBarData(
+                  spots: spots.map((spot) => FlSpot(spot.x, average)).toList(),
+                  isCurved: false,
+                  color: Colors.red,
+                  barWidth: 2,
+                ),
+            ],
+          ),
+        )
+      : BarChart(
+          BarChartData(
+            alignment: BarChartAlignment.spaceAround,
+            titlesData: FlTitlesData(
+              bottomTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  interval: 3600 * 1000,  // Asetetaan väli yhden tunnin välein
+                  getTitlesWidget: (value, meta) {
+                    DateTime date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
+                    String formattedDate = "${date.hour}:${date.minute.toString().padLeft(2, '0')}";
+                    return SideTitleWidget(
+                      axisSide: meta.axisSide,
+                      space: 8.0,
+                      child: Text(
+                        formattedDate,
+                        style: TextStyle(fontSize: 10),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              topTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: false,
+                ),
+              ),
+            ),
+            borderData: FlBorderData(show: true),
+            barGroups: spots.map((spot) {
+              return BarChartGroupData(
+                x: spot.x.toInt(),
+                barRods: [
+                  BarChartRodData(
+                    toY: spot.y,
+                    gradient: LinearGradient(colors: [Colors.blue]),
+                  ),
+                ],
+              );
+            }).toList(),
+          ),
+        );
+}
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -127,6 +204,14 @@ class _DataDisplayPageState extends State<DataDisplayPage> {
       ),
       body: Column(
         children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextButton(onPressed: () => _changeDate(-1), child: Text('-')),
+              Text('Date: ${_selectedDate.toLocal()}'.split(' ')[0]),
+              TextButton(onPressed: () => _changeDate(1), child: Text('+')),
+            ],
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -148,6 +233,15 @@ class _DataDisplayPageState extends State<DataDisplayPage> {
                   });
                 },
               ),
+              Text('Show average line'),
+              Switch(
+                value: _showAverageLine,
+                onChanged: (value) {
+                  setState(() {
+                    _showAverageLine = value;
+                  });
+                },
+              ),
             ],
           ),
           Expanded(
@@ -162,6 +256,7 @@ class _DataDisplayPageState extends State<DataDisplayPage> {
                   return const Center(child: Text('No data available'));
                 } else {
                   final data = snapshot.data!;
+                  double average = _calculateAverage(data);
                   return Column(
                     children: [
                       Expanded(
@@ -170,6 +265,7 @@ class _DataDisplayPageState extends State<DataDisplayPage> {
                           child: _buildChart(data),
                         ),
                       ),
+                      Text('Average: ${average.toStringAsFixed(2)}'),
                       Expanded(
                         child: ListView.builder(
                           itemCount: data.length,
@@ -193,4 +289,3 @@ class _DataDisplayPageState extends State<DataDisplayPage> {
     );
   }
 }
-
