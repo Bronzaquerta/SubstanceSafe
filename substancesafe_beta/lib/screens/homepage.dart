@@ -139,10 +139,6 @@ class _HomePageState extends State<HomePage> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             Expanded(
-              //this could be done using the clickable tiles so that you get automaticaly redirected to the
-              //corresponding patient detail page without the number since the number is a mess to implement
-              //i could add a number to each patient by getting the length of the patient_list and +1 to that
-              //and then assign the result to the patient in case
               child: FutureBuilder(
                   future: initializeList(),
                   builder: (context, snapshot) {
@@ -197,7 +193,7 @@ class _HomePageState extends State<HomePage> {
                   return;
                 }
 
-                String patientNumber = patientNumberController.text;
+                int patientNumber = int.parse(patientNumberController.text);
                 Navigator.push(
                   context,
                   MaterialPageRoute(
