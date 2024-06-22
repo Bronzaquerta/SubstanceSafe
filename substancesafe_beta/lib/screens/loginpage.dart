@@ -1,8 +1,6 @@
 //loginpage.dart
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:substancesafe_beta/models/doctor.dart';
-import 'package:substancesafe_beta/models/patient.dart';
 import 'package:substancesafe_beta/screens/new_account_page.dart';
 import 'package:substancesafe_beta/screens/homepage.dart';
 import 'package:substancesafe_beta/screens/patientPage.dart';
@@ -19,9 +17,9 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController passwordController = TextEditingController();
   bool rememberMe = false;
   final doctor.DoctorList _preferences = doctor.DoctorList([]);
-  List<Doctor> doctors = [];
+
   final patient.PatientList _patients = patient.PatientList([]);
-  List<Patient> patients = [];
+
   @override
   void initState() {
     super.initState();
@@ -33,10 +31,7 @@ class _LoginPageState extends State<LoginPage> {
     final storedUsername = sharedPreferences.getString('username');
     final storedPassword = sharedPreferences.getString('password');
     final storedRememberMe = sharedPreferences.getBool('rememberMe') ?? false;
-    List<Doctor> loadedDoctors = await _preferences.getDoctors();
-    setState(() {
-      doctors = loadedDoctors;
-    });
+
     if (storedRememberMe) {
       setState(() {
         userController.text = storedUsername ?? '';
@@ -101,7 +96,7 @@ class _LoginPageState extends State<LoginPage> {
       } else {
         ScaffoldMessenger.of(context)
           ..removeCurrentSnackBar()
-          ..showSnackBar(SnackBar(content: Text('Wrong email/password')));
+          ..showSnackBar(const SnackBar(content: Text('Wrong email/password')));
       }
     }
   }

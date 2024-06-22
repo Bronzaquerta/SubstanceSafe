@@ -49,8 +49,13 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
     if (doc) {
       doctor_list.add(Doctor(email: _email, name: _name, password: _password));
     } else {
-      patient_list
-          .add(Patient(email: _email, name: _name, password: _password));
+      patient_list.add(Patient(
+          email: _email,
+          name: _name,
+          password: _password,
+          hasDrank: false,
+          doesSport: false,
+          isSmoker: false));
     }
 
     ScaffoldMessenger.of(context)

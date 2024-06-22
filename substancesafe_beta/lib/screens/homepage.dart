@@ -187,6 +187,7 @@ class _HomePageState extends State<HomePage> {
                   return;
                 }
 
+
                 String patientNumber = patientNumberController.text;
                 int? patientNumberInt = int.tryParse(patientNumber);
 
@@ -197,6 +198,7 @@ class _HomePageState extends State<HomePage> {
                         content: Text('Please enter a valid patient number')));
                   return;
                 }
+
 
                 Navigator.push(
                   context,

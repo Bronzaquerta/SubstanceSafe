@@ -5,7 +5,9 @@ import 'package:http/http.dart' as http;
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:substancesafe_beta/models/data_model.dart';
+
 import 'package:intl/intl.dart';
+
 
 class Impact {
   static String baseUrl = 'https://impact.dei.unipd.it/bwthw/';
@@ -69,9 +71,9 @@ class Impact {
 
     final response = await http.get(Uri.parse(url), headers: headers);
 
-    print('Fetching data from: $url');
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
+    //print('Fetching data from: $url');
+    //print('Response status: ${response.statusCode}');
+    //print('Response body: ${response.body}');
 
     if (response.statusCode == 200) {
       final decodedResponse = jsonDecode(response.body);

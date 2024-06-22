@@ -26,10 +26,55 @@ class PatientList {
   }
 
   void removePatient(Patient patient) async {
-    _removeCredentials();
     PatientList oldPatients = PatientList([]);
     patient_list = await oldPatients.getPatients();
     patient_list.remove(patient);
+    savePatients(patient_list);
+  }
+
+  void updatedDatas(
+      int patient_number, bool hasDrank, bool doesSport, bool isSmoker) async {
+    PatientList oldPatients = PatientList([]);
+    patient_list = await oldPatients.getPatients();
+    Patient modifiedPatient = patient_list[patient_number]
+        .copyWith(hasDrank: hasDrank, doesSport: doesSport, isSmoker: isSmoker);
+    int index =
+        patient_list.indexWhere((obj) => obj.email == modifiedPatient.email);
+    patient_list[index] = modifiedPatient;
+  }
+
+  Future<List<bool>> retriveDatas(int patient_number) async {
+    PatientList oldPatients = PatientList([]);
+    patient_list = await oldPatients.getPatients();
+    List<bool> datas = [];
+    datas.add(patient_list[patient_number].hasDrank);
+    datas.add(patient_list[patient_number].doesSport);
+    datas.add(patient_list[patient_number].isSmoker);
+    return datas;
+  }
+
+  void updateNotes(int patient_number, String notes) async {
+    PatientList oldPatients = PatientList([]);
+    patient_list = await oldPatients.getPatients();
+    Patient modifiedPatient =
+        patient_list[patient_number].copyWith(notes: notes);
+    int index =
+        patient_list.indexWhere((obj) => obj.email == modifiedPatient.email);
+    patient_list[index] = modifiedPatient;
+    savePatients(patient_list);
+  }
+
+  Future<String> getNotes(int patient_number) async {
+    PatientList oldPatients = PatientList([]);
+    patient_list = await oldPatients.getPatients();
+    String notes = patient_list[patient_number].notes;
+    return notes;
+  }
+
+  void cancelNotes(int patient_number) async {
+    PatientList oldPatients = PatientList([]);
+    patient_list = await oldPatients.getPatients();
+    patient_list[patient_number].cancelNotes();
     savePatients(patient_list);
   }
 
@@ -48,18 +93,21 @@ class PatientList {
     return patients.map((patient) => patient.email).toList();
   }
 
-  Future<void> _removeCredentials() async {
-    final sharedPreferences = await SharedPreferences.getInstance();
-    await sharedPreferences.remove(_keyPatients);
-  }
-
   static const String _keyPatients = 'patients';
-
+  static bool _isSaving = false;
   Future<void> savePatients(List<Patient> patients) async {
-    final prefs = await SharedPreferences.getInstance();
-    List<String> patientsJson =
-        patients.map((patient) => jsonEncode(patient.toJson())).toList();
-    await prefs.setStringList(_keyPatients, patientsJson);
+    if (_isSaving) return; // Prevent re-entrance
+    _isSaving = true;
+    try {
+      var prefs = await SharedPreferences.getInstance();
+
+      List<String> patientsJson =
+          patients.map((patient) => jsonEncode(patient.toJson())).toList();
+
+      await prefs.setStringList(_keyPatients, patientsJson);
+    } finally {
+      _isSaving = false;
+    }
   }
 
   Future<List<Patient>> getPatients() async {

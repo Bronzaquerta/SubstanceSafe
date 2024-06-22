@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
             );
           } else if (snapshot.hasData) {
             final sharedPreferences = snapshot.data as SharedPreferences;
-            final isUserLogged =
+            bool isUserLogged =
                 sharedPreferences.getBool('isUserLogged') ?? false;
 
             if (isUserLogged) {

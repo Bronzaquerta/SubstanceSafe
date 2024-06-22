@@ -13,8 +13,8 @@ class PatientPage extends StatefulWidget {
 }
 
 class _PatientPageState extends State<PatientPage> {
-  late String selectedPatientNumber;
-  late String notes = '';
+  late int selectedPatientNumber;
+  String notes = '';
   bool drinksAlcohol = false;
   bool smokes = false;
   bool doesSports = false;
@@ -22,7 +22,21 @@ class _PatientPageState extends State<PatientPage> {
   @override
   void initState() {
     super.initState();
-    selectedPatientNumber = patients.isNotEmpty ? patients[0]['number']! : '';
+
+    selectedPatientNumber = 0;
+    initializePage();
+  }
+
+  void initializePage() async {
+    PatientList patients = PatientList([]);
+    List<Patient> oldPatients = await patients.getPatients();
+
+    for (int i = 0; i < oldPatients.length; i++) {
+      if (oldPatients[i].email == widget.patient_username) {
+        selectedPatientNumber = i;
+      }
+    }
+
     _loadNotes();
   }
 
@@ -35,32 +49,22 @@ class _PatientPageState extends State<PatientPage> {
   }
 
   Future<void> _loadNotes() async {
-    final sharedPreferences = await SharedPreferences.getInstance();
-    final savedNotes = sharedPreferences.getString(selectedPatientNumber) ?? '';
-    final savedDrinksAlcohol =
-        sharedPreferences.getBool('${selectedPatientNumber}_drinksAlcohol') ??
-            false;
-    final savedSmokes =
-        sharedPreferences.getBool('${selectedPatientNumber}_smokes') ?? false;
-    final savedDoesSports =
-        sharedPreferences.getBool('${selectedPatientNumber}_doesSports') ??
-            false;
+    final savedNotes = await PatientList([]).getNotes(selectedPatientNumber);
+
+    List<bool> savedDatas =
+        await PatientList([]).retriveDatas(selectedPatientNumber);
     setState(() {
       notes = savedNotes;
-      drinksAlcohol = savedDrinksAlcohol;
-      smokes = savedSmokes;
-      doesSports = savedDoesSports;
+      drinksAlcohol = savedDatas[0];
+      smokes = savedDatas[2];
+      doesSports = savedDatas[1];
     });
   }
 
   Future<void> _saveNotes() async {
-    final sharedPreferences = await SharedPreferences.getInstance();
-    await sharedPreferences.setString(selectedPatientNumber, notes);
-    await sharedPreferences.setBool(
-        '${selectedPatientNumber}_drinksAlcohol', drinksAlcohol);
-    await sharedPreferences.setBool('${selectedPatientNumber}_smokes', smokes);
-    await sharedPreferences.setBool(
-        '${selectedPatientNumber}_doesSports', doesSports);
+    PatientList([])
+        .updatedDatas(selectedPatientNumber, drinksAlcohol, doesSports, smokes);
+    PatientList([]).updateNotes(selectedPatientNumber, notes);
   }
 
   @override
@@ -113,25 +117,6 @@ class _PatientPageState extends State<PatientPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              DropdownButtonFormField<String>(
-                value: selectedPatientNumber,
-                onChanged: (String? newValue) {
-                  setState(() {
-                    selectedPatientNumber = newValue!;
-                    _loadNotes();
-                  });
-                },
-                items: patients.map<DropdownMenuItem<String>>((patient) {
-                  return DropdownMenuItem<String>(
-                    value: patient['number'],
-                    child: Text(patient['name']!),
-                  );
-                }).toList(),
-                decoration: InputDecoration(
-                  labelText: 'Select Patient',
-                  border: OutlineInputBorder(),
-                ),
-              ),
               SizedBox(height: 20),
               Text(
                 'Notes:',
