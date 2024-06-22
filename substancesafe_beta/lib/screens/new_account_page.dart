@@ -1,3 +1,4 @@
+//new_account_page.dart
 import 'package:flutter/material.dart';
 import 'package:substancesafe_beta/models/doctor.dart';
 import 'package:substancesafe_beta/models/patient.dart';
@@ -28,9 +29,7 @@ class CreateAccountPage extends StatefulWidget {
 class _CreateAccountPageState extends State<CreateAccountPage> {
   final _formKey = GlobalKey<FormState>();
   String _name = '';
-  // ignore: unused_field
   String _email = '';
-  // ignore: unused_field
   String _password = '';
   bool doc = false;
   final DoctorList _preferences = DoctorList([]);
@@ -43,10 +42,6 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
   }
 
   void _submit() async {
-    //potrebbe essere rindondante questa parte, creo una lista di dottori e poi creo un doctorList con tutti i dottori ma quando
-    //faccio add in doctorlist al suo interno creo una lista di dottori nuova che popolo con i dottori già presenti a cui poi aggungo
-    //il nuovo medico e salvo la nuova lista al posto di quella vecchia. per cui non sembra avere senso dare già una lista piena di dottori al metodo add
-    //dato che si occupa lui di rimpolparla al suo interno.
     List<Doctor> loadedDoctors = await _preferences.getDoctors();
     DoctorList doctor_list = DoctorList(loadedDoctors);
     List<Patient> loadedPatients = await _patients.getPatients();
@@ -71,7 +66,6 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
     'Doctor',
     'Patient',
   ];
-  // Variable to hold the selected option
   String? _selectedOption;
 
   @override
@@ -101,7 +95,6 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
           key: _formKey,
           child: Column(
             children: [
-              //Name field
               TextFormField(
                 decoration: InputDecoration(labelText: 'Name'),
                 validator: (value) {
@@ -114,7 +107,6 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                   _name = value!;
                 },
               ),
-              //Email field
               TextFormField(
                 decoration: InputDecoration(labelText: 'Email'),
                 validator: (value) {
@@ -130,7 +122,6 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                   _email = value!;
                 },
               ),
-              //Password field
               TextFormField(
                 decoration: InputDecoration(labelText: 'Password'),
                 obscureText: true,
@@ -167,8 +158,6 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  // Perform an action with the selected option
-
                   if (_formKey.currentState!.validate()) {
                     _formKey.currentState!.save();
                     if (_selectedOption != null) {

@@ -22,6 +22,7 @@ class _PatientPageState extends State<PatientPage> {
   @override
   void initState() {
     super.initState();
+
     selectedPatientNumber = 0;
     initializePage();
   }
@@ -35,6 +36,7 @@ class _PatientPageState extends State<PatientPage> {
         selectedPatientNumber = i;
       }
     }
+
     _loadNotes();
   }
 

@@ -1,3 +1,4 @@
+//doctor.dart
 class Doctor {
   String email;
   String name;
@@ -10,12 +11,10 @@ class Doctor {
     return 'Doctor(email: $email, name: $name, password: $password)';
   }
 
-  // checking the password
   bool checkPassword(String inputPassword) {
     return inputPassword == password;
   }
 
-  // updating the doctor information
   void updateDoctorInfo(String newName, String newPassword) {
     name = newName;
     password = newPassword;

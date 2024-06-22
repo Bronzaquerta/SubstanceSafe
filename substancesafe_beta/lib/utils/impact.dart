@@ -1,11 +1,13 @@
+//impact.dart
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:http/http.dart' as http;
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:substancesafe_beta/models/data_model.dart';
-import 'package:intl/intl.dart'; // Lisätty
+
+import 'package:intl/intl.dart';
+
 
 class Impact {
   static String baseUrl = 'https://impact.dei.unipd.it/bwthw/';

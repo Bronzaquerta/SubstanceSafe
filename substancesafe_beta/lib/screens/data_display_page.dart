@@ -18,7 +18,10 @@ class _DataDisplayPageState extends State<DataDisplayPage> {
   late DateTime _selectedDate;
   bool _showAllPoints = true;
   bool _showLineChart = true;
+
   bool _showAverageLine = false;  // New state variable for average line
+  String get patientUsername => 'Jpefaq6m58';
+
 
   @override
   void initState() {
@@ -30,11 +33,11 @@ class _DataDisplayPageState extends State<DataDisplayPage> {
   Future<List<DataModel>> fetchData(DateTime date) async {
     switch (widget.dataType) {
       case 'steps':
-        return Impact.fetchStepsData('Jpefaq6m58', date: date);
+        return Impact.fetchStepsData(patientUsername, date: date);
       case 'heart_rate':
-        return Impact.fetchHeartRateData('Jpefaq6m58', date: date);
+        return Impact.fetchHeartRateData(patientUsername, date: date);
       case 'distance':
-        return Impact.fetchDistanceData('Jpefaq6m58', date: date);
+        return Impact.fetchDistanceData(patientUsername, date: date);
       default:
         throw Exception('Unknown data type');
     }

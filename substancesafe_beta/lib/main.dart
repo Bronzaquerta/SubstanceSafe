@@ -1,3 +1,4 @@
+//main.dart
 import 'package:flutter/material.dart';
 import 'package:substancesafe_beta/screens/homepage.dart';
 import 'package:substancesafe_beta/screens/loginpage.dart';
@@ -5,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(const MyApp());
-} //main
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -40,6 +41,5 @@ class MyApp extends StatelessWidget {
         },
       ),
     );
-  } //build
-} //MyApp
-
+  }
+}
