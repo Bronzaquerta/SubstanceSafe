@@ -1,4 +1,3 @@
-
 // patientDetailPage.dart
 
 import 'package:flutter/material.dart';
@@ -42,9 +41,7 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
   }
 
   Future<void> _saveNotes(String notes) async {
-
-    PatientList([]).updateNotes(widget.patientNumber, notes);
-
+    PatientList([]).updatedDatas(widget.patientNumber, null, null, null, notes);
   }
 
   @override

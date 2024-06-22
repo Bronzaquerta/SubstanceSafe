@@ -62,9 +62,8 @@ class _PatientPageState extends State<PatientPage> {
   }
 
   Future<void> _saveNotes() async {
-    PatientList([])
-        .updatedDatas(selectedPatientNumber, drinksAlcohol, doesSports, smokes);
-    PatientList([]).updateNotes(selectedPatientNumber, notes);
+    PatientList([]).updatedDatas(
+        selectedPatientNumber, drinksAlcohol, doesSports, smokes, notes);
   }
 
   @override
